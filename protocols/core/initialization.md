@@ -31,14 +31,18 @@ Dispatch pathfinder for architecture scan:
 
 | Archetype | Signals | Typical Domain Agents |
 |-----------|---------|----------------------|
-| AI/ML | pytorch, tensorflow, .ipynb, models/ | data-architect, science-researcher |
-| Web App | React, Vue, Next.js, Express, Django | engineer (frontend), engineer (backend) |
-| Data Pipeline | airflow, dbt, pandas, ETL | data-architect, engineer |
-| Content/Docs | markdown, mdx, docs/, knowledge/ | knowledge-curator, humanities-researcher |
-| DevOps/Infra | terraform, k8s, ansible, .github/ | engineer (infra) |
+| AI/ML | pytorch, tensorflow, .ipynb, models/, trainer | data-architect, science-researcher, ml-engineer |
+| Web App (Frontend) | React, Vue, Svelte, Vite, static site, no API routes | engineer (frontend) |
+| Web App (Full-Stack) | React/Vue + API routes, ORM, DB config, FastAPI, Django, Express | engineer (frontend), engineer (backend), data-architect |
+| Data Pipeline | airflow, dbt, pandas, ETL, spark | data-architect, engineer |
+| Content/Docs | markdown, mdx, docs/, knowledge/, sphinx | knowledge-curator, humanities-researcher |
+| DevOps/Infra | terraform, k8s, ansible, .github/, helm | engineer (infra) |
 | Science | jupyter, scipy, R, datasets/ | science-researcher, data-architect |
 | Game Dev | unity, godot, bevy, assets/ | narrative-designer, engineer |
-| Mobile | swift, kotlin, flutter, android/ | engineer (mobile) |
+| Mobile | swift, kotlin, flutter, android/, ios/ | engineer (mobile) |
+| Monorepo | pnpm-workspace.yaml, turbo.json, lerna.json, packages/* | engineer (per-package domain), data-architect |
+| Framework/OSS | packages/[framework]/, crates/, examples/ with 50+ items | engineer (framework), engineer (compiler) |
+| Polyglot | Cargo.toml + *.ts/js, or multiple compiled languages | engineer (per-language) |
 | General | mixed or unclear | engineer (general-purpose) |
 
 5. Produce structured exploration report → `docs/exploration-report.md`
@@ -50,20 +54,36 @@ Coordinator processes pathfinder report:
 2. Ask clarifying questions about project goals and priorities
 3. Ask user preferences:
    - How to address them (name/handle)
-   - Communication style (formal/informal/brief/detailed)
+   - Communication style (formal/informal/brief/detailed/balanced)
    - Language preference (English/other/mixed)
    - Key priorities (speed/quality/learning/exploration)
-4. Store all preferences in memory: `{type: "preference"}`
-5. Create `user-identity.md` in workspace root
+4. **Input validation rules:**
+   - If user skips all questions → apply defaults: name="User", style="balanced", language="English", priorities="quality"
+   - If any field is empty string → treat as "not provided", apply default for that field
+   - Style must be one of: formal, informal, brief, detailed, balanced. Other values → ask again or default to "balanced"
+   - Priorities must be one of: speed, quality, learning, exploration. Other values → ask again or default to "quality"
+   - If language is "mixed" → ask follow-up: "Which languages? (e.g., English + Russian)". Store as `language: "en+ru"`. If no answer → default to "English"
+   - Name max length: 50 chars. Style/language/priorities max: 100 chars
+   - Store defaults with flag: `{type: "preference", source: "default"}` to distinguish from user-provided
+5. Store all preferences in memory: `{type: "preference"}`
+6. Create `user-identity.md` in workspace root
+7. **Phase 3 success criteria:** language field MUST be set (user-provided or default). If language is not set after 2 prompts, apply "English" default and continue with logged warning.
 
 ### Phase 4: Adapt
 
 Create project-specific agents and protocols:
 1. Select domain agents based on archetype (see Phase 2 table)
-2. Delegate to llm-engineer: create agent definitions in `.claude/agents/`
-3. Invoke protocol-manager: create project-specific protocols in `protocols/project/`
-4. Update dispatcher.md: add new agents to routing table
-5. Update CLAUDE.md: add new agents to subagent table, update protocol index
+2. **Apply user priority modifiers to agent selection and configuration:**
+   - `speed` → prefer engineers and architects, minimize research agents, configure all agents for concise/direct output (skip boilerplate, prefer diffs)
+   - `quality` → add QA/testing focus, configure agents for rigorous output (include tests, type hints, error handling, rationale)
+   - `learning` → configure agents to include explanations, "why" reasoning, and alternatives in output. Consider adding docs-writer or mentor-style agent
+   - `exploration` → heavier research agents, configure agents to suggest experiments, surface edge cases, propose alternatives
+3. Delegate to llm-engineer: create agent definitions in `.claude/agents/`
+   - Pass user priority as prompt modifier: "User priority is [X] — calibrate agent verbosity and style accordingly."
+   - Pass communication style: "User communication style is [Y] — match this register in all responses."
+4. Invoke protocol-manager: create project-specific protocols in `protocols/project/`
+5. Update dispatcher.md: add new agents to routing table
+6. Update CLAUDE.md: add new agents to subagent table, update protocol index
 
 ### Phase 5: Deploy
 
@@ -123,9 +143,9 @@ This is the natural bridge from onboarding to productive work. The user should f
 1. NEVER skip Phase 2 (Explore) — even for small projects, pathfinder must scan
 2. NEVER auto-create agents without user confirmation (Phase 3)
 3. MUST remove `<!-- _WORKFLOW_NEEDS_INIT -->` from CLAUDE.md after successful Phase 8
-4. MUST store at least 5 memory records during initialization (preferences + project facts)
+4. MUST store at least 5 memory records during initialization. These include project facts (archetype, primary language/framework, version, detected agents, timestamp) which are always available regardless of user participation in Phase 3. User preferences are additional records on top of project facts.
 5. If any phase fails → stop, report error, do NOT proceed to next phase
-6. Initialization is idempotent — running again on an initialized project re-runs exploration but preserves existing agents and preferences
+6. Initialization is idempotent — running again on an initialized project re-runs exploration but preserves existing agents and preferences. To correct corrupted preferences, re-run Phase 3: all preference fields will be re-asked and overwritten, old memory records updated.
 7. Phase 9 MUST be the last phase — never skip the transition to planning mode
 
 ## Example

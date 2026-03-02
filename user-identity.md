@@ -4,10 +4,13 @@
 
 ## Preferences
 
-- **Name:** [how to address you]
-- **Communication style:** [formal / informal / brief / detailed]
-- **Language:** [English / other / mixed]
-- **Priorities:** [speed / quality / learning / exploration]
+- **Name:** User
+- **Communication style:** balanced
+- **Language:** English
+- **Other language:** [if mixed — specify second language, e.g., Russian]
+- **Priorities:** quality
+
+> Defaults shown above. Updated during initialization Phase 3 and evolved over time.
 
 ## Patterns
 
