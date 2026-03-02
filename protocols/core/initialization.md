@@ -166,9 +166,14 @@ Workflow graduates from version 0.1 → 1.0:
 1. Run evolution protocol cycle on the freshly configured workflow
 2. Pathfinder re-scans: verify all agents, protocols, memory layer work together
 3. Protocol-manager validates: all protocols are indexed, cross-referenced, discoverable
-4. Coordinator synthesizes: generate evolution report, apply any improvements
-5. Update CLAUDE.md: change `<!-- WORKFLOW_VERSION: 0.1 -->` to `<!-- WORKFLOW_VERSION: 1.0 -->`
-6. Store initialization record in memory: `{type: "evolution", subtype: "initialization"}`
+4. **Self-Architecture Bootstrap:**
+   a. Dispatch pathfinder (self-explore mode) → generate initial `docs/self-architecture/capability-map.md`
+   b. Verify `docs/self-architecture/` directory exists with `body-registry.json`, `gap-analysis-log.md`
+   c. Run lightweight gap analysis on the freshly initialized system
+   d. Store: `{type: "evolution", subtype: "self_architecture_initialized"}`
+5. Coordinator synthesizes: generate evolution report, apply any improvements
+6. Update CLAUDE.md: change `<!-- WORKFLOW_VERSION: 0.1 -->` to `<!-- WORKFLOW_VERSION: 1.0 -->`
+7. Store initialization record in memory: `{type: "evolution", subtype: "initialization"}`
 
 ### Phase 9: Planning
 

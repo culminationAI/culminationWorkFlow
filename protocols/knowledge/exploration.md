@@ -75,6 +75,23 @@ Find external information for project analysis.
 3. **Summarize** — extract relevant information
 4. **Store** — write findings to memory with `{type: "reference"}`
 
+### 6. Self-Explore
+
+Introspective scan of the workflow's own architecture — not the user's project code.
+
+1. **Scan agents** — Glob `.claude/agents/*.md`, parse YAML frontmatter + expertise
+2. **Scan protocols** — Glob `protocols/**/*.md`, parse purpose + triggers + dependencies
+3. **Scan MCP** — Read `mcp/mcp.json` + `mcp/mcp-full.json`, map active vs available
+4. **Scan memory** — Run `memory_verify.py --quick`, count records by type
+5. **Parse CLAUDE.md** — version, rules, protocol index, subagent table
+6. **Cross-reference** — agents ↔ dispatcher routing, protocols ↔ CLAUDE.md index, MCP ↔ agent declarations
+7. **Output** — Write `docs/self-architecture/capability-map.md` with full capability report
+
+Trigger: self-evolution protocol Phase 1, coordinator request `/self-explore`
+See: `protocols/core/self-evolution.md`, `protocols/core/gap-analysis.md`
+
+**Important**: Self-explore does NOT modify agents, protocols, or code. It only writes `capability-map.md`. Pure introspection.
+
 ## Process (General)
 
 ```

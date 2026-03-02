@@ -2,6 +2,17 @@
 
 > Not a subagent. The coordinator applies these rules mentally on every request.
 
+## Pre-Classification: Gap Check
+
+Before classifying by tier, check if the task domain has known coverage gaps:
+
+1. If `docs/self-architecture/capability-map.md` exists — scan for domain coverage
+2. If domain coverage score < 0.5 → trigger deep gap analysis (`protocols/core/gap-analysis.md`) BEFORE dispatching
+3. If an active evolution body covers the domain → route normally (body provides capability)
+4. If a buffered body covers the domain → recommend reactivation to user
+
+Skip this check for T1 tasks (always covered by direct tools).
+
 ## Request Classification (by verb)
 
 | Verb | Tier | Steps | Output |
@@ -38,6 +49,7 @@
 | Memory management: verify, validate, dedupe, cleanup, maintenance | pathfinder |
 | Post-refactor verification, connection mapping, knowledge extraction | pathfinder |
 | Web research for project analysis | pathfinder |
+| Self-architecture scan, capability mapping, gap detection | pathfinder (self-explore mode) |
 | Protocol creation, organization, search, indexing | protocol-manager |
 | Protocol directory maintenance, cross-reference management | protocol-manager |
 | Python, Docker, API, scripts, tests, infrastructure | engineer |

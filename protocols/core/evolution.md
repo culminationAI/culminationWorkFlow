@@ -20,6 +20,21 @@ Miner produces self-architecture analysis revealing structural issues.
 ### 3. Internal Need
 Coordinator identifies inefficiency, redundancy, or inconsistency during work.
 
+### 4. Self-Evolution Gap Detection
+Gap analysis (see `protocols/core/gap-analysis.md`) identifies a STRUCTURAL gap — the system lacks agents, protocols, or MCP tools needed for a task. Flows through the self-evolution pipeline (`protocols/core/self-evolution.md`) instead of the standard pipeline. Shares security gate (Step 8) and storage (Step 9) with this protocol.
+
+## Relationship to Self-Evolution
+
+This protocol handles **reactive** evolution (corrections, routing fixes, workflow improvements).
+`protocols/core/self-evolution.md` handles **proactive** evolution (gap detection → temporary capability extension via "evolution bodies").
+
+Shared:
+- Step 8 (Security Gate) — same immutable/protected file checks
+- Step 9 (Store) — same memory format and metadata
+- `protocols/quality/testing.md` — same benchmark framework
+
+Key difference: evolution changes are **permanent**. Self-evolution creates **temporary** bodies with TTL that downgrade to a buffer when unused.
+
 ## Pipeline
 
 ### Step 1: Detect

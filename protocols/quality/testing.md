@@ -60,6 +60,14 @@ Scale: 0-100 total.
 - T19: Multi-project coordination
 - T20: Complex architectural decision
 
+### Wave 5: Self-Evolution (T4-T5)
+3 tests, self-awareness validation:
+- T21: Gap analysis accuracy — known-gap scenario produces correct classification (no-gap, KNOWLEDGE, STRUCTURAL)
+- T22: Body lifecycle — create draft → activate → use → deactivate → reactivate → archive
+- T23: Self-explore completeness — all agents, protocols, MCP reflected in capability map
+
+Smoke test details: `docs/self-architecture/smoke-tests/`
+
 ## Adaptive Test Selection
 
 Not all tests run for every evaluation. Select based on change type:
@@ -70,9 +78,10 @@ Not all tests run for every evaluation. Select based on change type:
 | Delegation fix | T11-T15 (Wave 3) | PAR, ROUT, PLAN |
 | Memory fix | T16-T17 (Wave 4) | MEM, CONT |
 | Protocol fix | T17-T18 (Wave 4) | CONT, QUAL |
+| Self-evolution fix | T21-T23 (Wave 5) | COMP, QUAL |
 | Architectural | All waves | All metrics |
 
-Minimum: 5 tests per evaluation. Maximum: all 20.
+Minimum: 5 tests per evaluation. Maximum: all 23.
 
 ## Evaluation Process
 

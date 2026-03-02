@@ -34,7 +34,7 @@ python3 memory/scripts/memory_verify.py
   "user_id": "user",
   "agent_id": "coordinator|narrative-designer|...",
   "metadata": {
-    "type": "decision|preference|evolution|task|contract|blocker",
+    "type": "decision|preference|evolution|task|contract|blocker|gap_analysis",
     "source_project": "personal|{project}|miner:personal|..."
   },
   "entities": [{"name": "Entity Name", "type": "person|project|metric|concept"}],
@@ -62,6 +62,11 @@ python3 memory/scripts/memory_verify.py
 | Architecture/design decision | `decision` |
 | Task completed | `task` |
 | Blocker encountered | `blocker` |
+| Gap analysis completed | `gap_analysis` |
+| Evolution body activated | `evolution` (subtype: body_activated) |
+| Evolution body deactivated | `evolution` (subtype: body_deactivated) |
+| Evolution body reactivated | `evolution` (subtype: body_reactivated) |
+| Knowledge gap filled | `evolution` (subtype: knowledge_acquisition) |
 
 ## Conflict Resolution
 

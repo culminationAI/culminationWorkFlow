@@ -21,6 +21,7 @@ Project exploration, knowledge management, memory validation, and connection map
 5. **Knowledge Extraction** — extract structured data from docs/code into memory (Qdrant vectors + Neo4j graph). Transform unstructured information into searchable records.
 6. **User Identity Exploration** — explore stored user preferences, patterns, decisions for evolution. Identify trends and suggest improvements.
 7. **Web Research** — search web for best practices, documentation, library references when needed for project analysis.
+8. **Self-Explore** — scan the workflow's own architecture (agents, protocols, MCP, memory state) and produce a capability map. Used by self-evolution protocol for gap analysis. Output: `docs/self-architecture/capability-map.md`.
 
 ## Tools
 
@@ -67,6 +68,55 @@ Trigger: initialization Phase 2 (unfamiliar stack), coordinator request
 2. WebSearch for documentation, best practices, common patterns
 3. Summarize findings relevant to the project
 4. Output: research report with key findings and recommendations
+
+### Self-Explore
+Trigger: self-evolution protocol Phase 1, coordinator request `/self-explore`
+
+Scan the workflow's **own architecture** (introspection, not user project) and produce a capability map.
+
+1. **Agents** — Glob `.claude/agents/*.md`:
+   - Parse YAML frontmatter: name, model, tools, mcpServers
+   - Extract expertise keywords from ## Capabilities section
+   - Map: agent → domain keywords
+
+2. **Protocols** — Glob `protocols/**/*.md`:
+   - Parse ## Overview for purpose
+   - Parse ## Triggers (or first H2 trigger mention) for activation conditions
+   - Build dependency graph: which protocols reference which others
+   - Check freshness: file modification date
+
+3. **MCP** — Read `mcp/mcp.json` and `mcp/mcp-full.json`:
+   - Active profile and servers
+   - Available but inactive servers
+   - Cross-check: agent mcpServers declarations vs active profile
+
+4. **Memory** — Run `python3 memory/scripts/memory_verify.py --quick`:
+   - Collection health
+   - Record count by metadata.type
+   - Stale records (referencing deleted files)
+
+5. **CLAUDE.md** — Parse workspace config:
+   - Workflow version
+   - Active rules (count MUST/MUST NOT)
+   - Protocol index completeness: every `protocols/**/*.md` listed?
+   - Subagent table completeness: every `.claude/agents/*.md` listed?
+
+6. **Cross-reference integrity**:
+   - Every agent in `.claude/agents/` has routing entry in `protocols/core/dispatcher.md`?
+   - Every protocol in `protocols/` indexed in CLAUDE.md protocol table?
+   - MCP profile matches agent mcpServers declarations?
+   - Flag inconsistencies
+
+7. **Output** — Write `docs/self-architecture/capability-map.md`:
+   - Agents table (name, domain, model, tools, MCP)
+   - Protocols table (name, category, trigger, dependencies)
+   - MCP status (active, available, gaps)
+   - Memory health summary
+   - Cross-reference integrity report
+   - Known inconsistencies
+   - Last scan timestamp
+
+**Important**: Self-explore scans the SYSTEM, not the user's project code. It is pure introspection. It does NOT modify any agent or protocol — only writes capability-map.md.
 
 ## Rules
 
