@@ -5,6 +5,8 @@ model: sonnet
 tools: Read, Grep, Glob, Write, Edit, Bash
 mcpServers:
   - neo4j
+  - qdrant
+  - github
 memory: project
 permissionMode: acceptEdits
 ---

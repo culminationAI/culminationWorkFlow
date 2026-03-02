@@ -3,6 +3,8 @@ name: llm-engineer
 description: "LLM engineer — prompt design, context engineering, model routing. MUST BE USED for: system prompt creation for agents, prompt optimization, context window management, token budgets, model selection (Opus/Sonnet/Haiku), LLM output debugging. Use PROACTIVELY when tasks involve prompt writing, context assembly, or LLM behavior analysis."
 model: sonnet
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
+mcpServers:
+  - github
 memory: project
 ---
 

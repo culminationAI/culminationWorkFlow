@@ -168,4 +168,19 @@ Then Read the protocol file and inject relevant section into subagent prompt.
 
 ## MCP Tools
 
-Configured in `mcp/mcp.json`. Review available servers after installation.
+Profile system: `core` (default, ~4K tokens) → `full` (all servers, ~16K tokens).
+Switch: `python3 mcp/mcp_configure.py --profile {core|db|web|research|full}`
+Status: `python3 mcp/mcp_configure.py --status`
+
+| Server | MUST | MUST NOT |
+|--------|------|----------|
+| context7 | Call `resolve-library-id` BEFORE `query-docs` | Query without resolving ID first |
+| filesystem | Use for directory_tree, move operations | Access files outside workspace |
+| neo4j | Call `get_neo4j_schema` before writing Cypher | Guess schema — always check first |
+| qdrant | Use for vector store debugging | Use for routine memory ops (use Python scripts) |
+| github | Use for PRs, issues, code review | Push without user confirmation |
+| playwright | Use for web scraping, UI testing | Leave browser open after task |
+| semgrep | Run on security-critical code changes | Skip when code handles user input |
+| youtube-transcript | Extract transcripts for research | Process videos without user request |
+
+Protocol: `protocols/core/mcp-management.md`

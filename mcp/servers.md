@@ -1,57 +1,62 @@
 # MCP-серверы проекта
 
-Конфигурация: `mcp/mcp.json`
+Конфигурация: `mcp/mcp.json` (активный) · `mcp/mcp-full.json` (все серверы)
+Управление: `python3 mcp/mcp_configure.py --help`
+Протокол: `protocols/core/mcp-management.md`
 
-## Подключённые серверы
+## Классификация
 
-### Context7
-- **Пакет:** `@upstash/context7-mcp`
-- **Назначение:** Поиск актуальной документации и примеров кода по библиотекам/фреймворкам
-- **Инструменты:**
-  - `resolve-library-id` — найти ID библиотеки
-  - `query-docs` — запросить документацию
+### Core (всегда загружены)
 
-### Filesystem
-- **Пакет:** `@modelcontextprotocol/server-filesystem`
-- **Назначение:** Файловые операции в рабочей директории (`main/`)
+| Сервер | Пакет | Назначение | ~Токены |
+|--------|-------|------------|---------|
+| context7 | @upstash/context7-mcp | Документация библиотек | ~2K |
+| filesystem | @modelcontextprotocol/server-filesystem | Файловые операции (directory_tree, move_file) | ~2K |
 
-### Neo4j
-- **Пакет:** `mcp-neo4j-cypher` (uvx, Python)
-- **Назначение:** Прямой доступ к графовой БД — Cypher-запросы, схема, индексы
-- **Env:** `NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`, `NEO4J_DATABASE`
-- **Статус:** Активируется при запуске Neo4j-контейнера (порт 7687)
-- **Кто использует:** data-architect (проектирование), engineer (реализация)
+### Specialized (по необходимости)
 
-### Qdrant
-- **Пакет:** `mcp-server-qdrant` (uvx, Python)
-- **Назначение:** Семантическое хранилище — store/find эмбеддингов, отладка векторного поиска
-- **Env:** `QDRANT_URL`, `COLLECTION_NAME`, `EMBEDDING_MODEL`
-- **Статус:** Активируется при запуске Qdrant-контейнера (порт 6333)
-- **Кто использует:** data-architect (проектирование), engineer (реализация)
+| Сервер | Пакет | Назначение | Агенты | ~Токены |
+|--------|-------|------------|--------|---------|
+| neo4j | mcp-neo4j-cypher | Cypher-запросы, схема графа | data-architect, engineer | ~2K |
+| qdrant | mcp-server-qdrant | Векторный поиск, эмбеддинги | data-architect, engineer | ~2K |
+| github | @modelcontextprotocol/server-github | PR, issues, code review | engineer, llm-engineer | ~2K |
+| playwright | @playwright/mcp | Браузерная автоматизация | engineer | ~2K |
+| semgrep | semgrep-mcp | Статический анализ безопасности | engineer | ~2K |
+| youtube-transcript | @kimtaeyoon83/mcp-server-youtube-transcript | Транскрипты YouTube | researcher-агенты | ~2K |
 
-### GitHub
-- **Пакет:** `@modelcontextprotocol/server-github`
-- **Назначение:** PR, issues, code review, поиск по коду — прямо из контекста
-- **Env:** `GITHUB_PERSONAL_ACCESS_TOKEN`
-- **Статус:** Активируется после создания токена
+## Профили
 
-### Playwright
-- **Пакет:** `@playwright/mcp` (официальный, Microsoft)
-- **Назначение:** Браузерная автоматизация — скрейпинг источников, тестирование UI
+| Профиль | Серверы | ~Overhead | Когда использовать |
+|---------|---------|-----------|-------------------|
+| `core` | context7, filesystem | ~4K | Дефолт — большинство сессий |
+| `db` | core + neo4j + qdrant | ~8K | Работа с графами/векторами |
+| `web` | core + playwright + github | ~8K | Web-разработка, PR review |
+| `research` | core + youtube-transcript | ~6K | Исследования с видео |
+| `full` | все 8 серверов | ~16K | Кросс-доменная работа, отладка |
 
-### Semgrep
-- **Пакет:** `semgrep-mcp` (uvx, Python)
-- **Назначение:** Статический анализ безопасности кода — OWASP, уязвимости, секреты
+### Переключение
 
-### YouTube Transcript
-- **Пакет:** `@kimtaeyoon83/mcp-server-youtube-transcript`
-- **Назначение:** Извлечение транскриптов YouTube-видео — субтитры, временные метки
-- **Инструменты:**
-  - `get_transcript` — извлечь транскрипт видео (url, lang, include_timestamps)
-- **Кто использует:** Координатор, исследовательские агенты (парсинг подкастов/лекций)
+```bash
+python3 mcp/mcp_configure.py --profile core      # дефолт
+python3 mcp/mcp_configure.py --profile db         # + Neo4j + Qdrant
+python3 mcp/mcp_configure.py --add github         # добавить один сервер
+python3 mcp/mcp_configure.py --status             # текущее состояние
+```
+
+**Важно:** после переключения нужен перезапуск Claude Code.
+
+## Env-переменные
+
+| Сервер | Переменные | Загрузка |
+|--------|-----------|----------|
+| neo4j | NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE | secrets/.env → with-env.sh |
+| qdrant | QDRANT_URL | secrets/.env → with-env.sh |
+| github | GITHUB_PERSONAL_ACCESS_TOKEN | secrets/.env → with-env.sh |
+
+Серверы context7, filesystem, playwright, semgrep, youtube-transcript не требуют env-переменных.
 
 ## Требования
 
-- **Node.js** — для npx-серверов (Context7, Filesystem, GitHub, Playwright, YouTube Transcript)
-- **uv/uvx** — для Python-серверов (Neo4j, Qdrant, Semgrep). Установка: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **Docker** — для Neo4j и Qdrant контейнеров
+- **Node.js 18+** — npx-серверы (context7, filesystem, github, playwright, youtube-transcript)
+- **uv/uvx** — Python-серверы (neo4j, qdrant, semgrep)
+- **Docker** — контейнеры Neo4j + Qdrant (только для профилей db и full)

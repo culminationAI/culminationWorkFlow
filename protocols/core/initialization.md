@@ -124,11 +124,22 @@ Create project-specific agents and protocols:
 
 ### Phase 5: Deploy
 
-Infrastructure setup:
-1. Run `setup.sh` — deploys Docker services (Qdrant + Neo4j)
-2. Create memory collection in Qdrant
-3. Configure MCP servers (copy mcp.json, set env vars)
-4. Ask user: "Would you like to set up a Telegram bot for remote access?"
+Infrastructure and MCP setup:
+
+1. Determine MCP profile based on project archetype from Phase 2:
+   - AI/ML, Data → `db` (core + neo4j + qdrant)
+   - Content, Research → `research` (core + youtube-transcript)
+   - Web App, DevOps → `web` (core + playwright + github)
+   - General, Unknown → `core` (context7 + filesystem only)
+2. Run `python3 mcp/mcp_configure.py --profile {selected}`
+3. Inform user: "Active MCP profile: {name}, {N} servers, ~{N}K tokens/message overhead"
+4. Ask: "Need additional MCP servers? (e.g., github for PR review, semgrep for security)"
+   - If yes → `python3 mcp/mcp_configure.py --add {server}`
+5. If profile includes db servers (neo4j, qdrant):
+   a. Run `setup.sh` — deploy Docker services (Qdrant + Neo4j)
+   b. Create memory collection in Qdrant
+   c. Verify: `python3 memory/scripts/memory_verify.py --quick`
+6. Ask user: "Would you like to set up a Telegram bot for remote access?"
    - If yes → ask for bot token, configure `bot/` directory
    - If no → skip
 
