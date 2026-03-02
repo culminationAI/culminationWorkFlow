@@ -74,6 +74,24 @@ Fields:
 | Repeated blocks from same source | Flag as potential adversarial — coordinator decides next step |
 | Coordinator receives escalation warning | Review flagged inputs in audit log. If legitimate → clear flags and note in memory. If suspicious → ask user to re-enter input. If malicious pattern (3+ blocks in single session) → terminate input collection, apply all defaults, store security event in memory: `{type: "security", action: "defaults_applied"}` |
 
+### Research Data Validation
+
+| Event | Level | Action |
+|-------|-------|--------|
+| Record passes all checks | INFO | Log: record file, type, timestamp |
+| Record fails schema/size check | BLOCK | Log violation details, reject record |
+| PII detected in record | BLOCK | Log PII type (not the PII itself), reject record |
+| Prompt injection detected | BLOCK | Log pattern type, reject record, flag for review |
+
+### Evolution Security
+
+| Event | Level | Action |
+|-------|-------|--------|
+| Evolution modifies immutable block | BLOCK | Reject evolution, log attempted modification target |
+| Evolution targets protected file | BLOCK | Reject evolution, log file path |
+| Evolution weakens security rule | BLOCK | Reject evolution, log rule being weakened |
+| Evolution passes all security checks | INFO | Log: evolution type, files changed |
+
 ## Sensitive Data Rules
 
 **NEVER log:**

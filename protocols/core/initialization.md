@@ -66,13 +66,40 @@ Coordinator processes pathfinder report:
    - Language preference (English/other/mixed)
    - Key priorities (speed/quality/learning/exploration)
 4. **Input validation rules:**
-   - If user skips all questions → apply defaults: name="User", style="balanced", language="English", priorities="quality"
+
+   **a) Security pattern check (ALL text fields):**
+   Before storing any user input, check for injection patterns:
+   - Reject: backticks, semicolons, null bytes, control characters, `<script`, `eval(`, Cypher keywords (MERGE, CREATE, DELETE, SET)
+   - If pattern detected → log to `logs/security-audit.log`, ask user to re-enter
+   - Max 3 re-entry attempts per field; then apply default and log security event
+
+   **b) Name field:**
+   - Whitelist: `^[a-zA-Z0-9 '\-]{1,50}$` (letters, digits, space, apostrophe, hyphen)
+   - If invalid → ask again (max 2 attempts), then default to "User"
+
+   **c) Communication style:**
+   - Strict enum: formal, informal, brief, detailed, balanced
+   - If not in enum → ask again (max 2 attempts), then default to "balanced"
+
+   **d) Language:**
+   - Single: validate against known codes (en, ru, es, fr, de, ja, zh, ko, pt, it, ar, hi, etc.)
+   - Mixed: extract codes from follow-up, validate each. Store as `language: "en+ru"`
+   - If invalid → ask again (max 2 attempts), then default to "English"
+
+   **e) Priorities:**
+   - Strict enum: speed, quality, learning, exploration
+   - If not in enum → ask again (max 2 attempts), then default to "quality"
+
+   **f) Empty/skip handling:**
+   - If user skips ALL questions → apply defaults: name="User", style="balanced", language="English", priorities="quality"
    - If any field is empty string → treat as "not provided", apply default for that field
-   - Style must be one of: formal, informal, brief, detailed, balanced. Other values → ask again or default to "balanced"
-   - Priorities must be one of: speed, quality, learning, exploration. Other values → ask again or default to "quality"
-   - If language is "mixed" → ask follow-up: "Which languages? (e.g., English + Russian)". Store as `language: "en+ru"`. If no answer → default to "English"
-   - Name max length: 50 chars. Style/language/priorities max: 100 chars
    - Store defaults with flag: `{type: "preference", source: "default"}` to distinguish from user-provided
+
+   **g) Audit logging:**
+   After collecting all preferences, log to `logs/security-audit.log`:
+   ```
+   [TIMESTAMP] [INFO] [phase3] [preference] [accepted] — name=[N], style=[S], language=[L], priorities=[P], source=[user|default]
+   ```
 5. Store all preferences in memory: `{type: "preference"}`
 6. Create `user-identity.md` in workspace root
 7. **Phase 3 success criteria:** language field MUST be set (user-provided or default). If language is not set after 2 prompts, apply "English" default and continue with logged warning.

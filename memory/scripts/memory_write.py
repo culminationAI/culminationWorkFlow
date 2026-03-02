@@ -19,6 +19,7 @@ Each record in the array:
 from __future__ import annotations
 
 import json
+import re
 import sys
 import uuid
 import hashlib
@@ -28,6 +29,55 @@ from typing import Any
 
 import os
 import requests
+
+# --- Security: Input Validation ---
+
+IDENTIFIER_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]{0,49}$")
+MAX_TEXT_LEN = 5000
+MAX_JSON_BYTES = 10 * 1024 * 1024  # 10MB
+
+
+def sanitize_identifier(value: str, field: str = "identifier") -> str:
+    """Whitelist-validate a Neo4j label or relationship type.
+    Only allows: letters, digits, underscore. Max 50 chars. Must start with letter or underscore."""
+    if not isinstance(value, str):
+        raise ValueError(f"[SECURITY] {field}: not a string")
+    cleaned = value.strip().lower().replace(" ", "_").replace("-", "_")
+    if not IDENTIFIER_RE.match(cleaned):
+        raise ValueError(
+            f"[SECURITY] {field}: invalid identifier '{cleaned}' — "
+            f"must match ^[a-zA-Z_][a-zA-Z0-9_]{{0,49}}$"
+        )
+    return cleaned
+
+
+def validate_text(value: str, field: str = "text", max_len: int = MAX_TEXT_LEN) -> str:
+    """Validate text field: length limit, no null bytes."""
+    if not isinstance(value, str):
+        raise ValueError(f"[SECURITY] {field}: not a string")
+    if "\x00" in value:
+        raise ValueError(f"[SECURITY] {field}: contains null bytes")
+    if len(value) > max_len:
+        print(f"[WARN] {field}: truncated from {len(value)} to {max_len} chars", file=sys.stderr)
+        value = value[:max_len]
+    return value
+
+
+def safe_json_load(source, max_bytes: int = MAX_JSON_BYTES):
+    """Load JSON with size limit. source can be file object or string."""
+    if hasattr(source, "read"):
+        content = source.read(max_bytes + 1)
+        if len(content) > max_bytes:
+            raise ValueError(
+                f"[SECURITY] JSON input exceeds {max_bytes // 1024 // 1024}MB limit"
+            )
+        return json.loads(content)
+    else:
+        if len(source) > max_bytes:
+            raise ValueError(
+                f"[SECURITY] JSON input exceeds {max_bytes // 1024 // 1024}MB limit"
+            )
+        return json.loads(source)
 
 # --- Config ---
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
@@ -105,12 +155,16 @@ def neo4j_upsert_entities_and_relations(
         return
 
     for ent in entities:
-        name = ent["name"].lower().replace(" ", "_")
-        ent_type = ent.get("type", "entity").lower().replace(" ", "_")
+        # Validate entity name and type before embedding in Cypher
+        raw_name = validate_text(ent["name"], field="entity.name", max_len=200)
+        name = raw_name.lower().replace(" ", "_").replace("-", "_")
+        ent_type = sanitize_identifier(
+            ent.get("type", "entity"), field="entity.type"
+        )
         props = {k: v for k, v in ent.items() if k not in ("name", "type")}
         props["user_id"] = user_id
         props["updated_at"] = datetime.now(timezone.utc).isoformat()
-        
+
         # Use __User__ label pattern consistent with mem0
         cypher = (
             f"MERGE (n:`{ent_type}` {{name: $name}}) "
@@ -119,9 +173,14 @@ def neo4j_upsert_entities_and_relations(
         neo4j_run(cypher, {"name": name, "props": props})
 
     for rel in relations:
-        source = rel["source"].lower().replace(" ", "_")
-        target = rel["target"].lower().replace(" ", "_")
-        relation = rel["relation"].upper().replace(" ", "_")
+        # Validate relation endpoints and type before embedding in Cypher
+        raw_source = validate_text(rel["source"], field="relation.source", max_len=200)
+        raw_target = validate_text(rel["target"], field="relation.target", max_len=200)
+        source = raw_source.lower().replace(" ", "_").replace("-", "_")
+        target = raw_target.lower().replace(" ", "_").replace("-", "_")
+        relation = sanitize_identifier(
+            rel["relation"], field="relation.type"
+        ).upper()
 
         cypher = (
             f"MERGE (a {{name: $source}}) "
@@ -142,7 +201,7 @@ def write_memories(records: list[dict]) -> dict[str, int]:
     failed = 0
 
     for i, rec in enumerate(records):
-        text = rec["text"]
+        text = validate_text(rec["text"], field="record.text")
         user_id = rec.get("user_id", "user")
         agent_id = rec.get("agent_id", "general")
         metadata = rec.get("metadata", {})
@@ -193,12 +252,12 @@ def main():
 
     if args.file:
         with open(args.file) as f:
-            records = json.load(f)
+            records = safe_json_load(f)
     elif args.json_data:
-        records = json.loads(args.json_data)
+        records = safe_json_load(args.json_data)
     else:
         # Read from stdin
-        records = json.load(sys.stdin)
+        records = safe_json_load(sys.stdin)
 
     if not isinstance(records, list):
         records = [records]

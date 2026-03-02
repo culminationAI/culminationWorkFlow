@@ -75,10 +75,36 @@ cp -r .claude/agents/ evolve/backup-{date}-agents/
 # (or create a git tag if in a git repo)
 ```
 
-### Step 8: Transform
-Adopt the best variant's rules into the main config:
+### Step 8: Transform (Security-Gated)
+
+Before adopting the best variant's rules, perform mandatory security checks:
+
+**8a. Immutable Rule Check:**
+1. Parse target files for `<!-- IMMUTABLE -->` blocks
+2. If evolved rule modifies content within ANY immutable block → **REJECT evolution**
+3. Log rejection: `{type: "security", action: "evolution_rejected", reason: "immutable_block_violation"}`
+
+**8b. Protected File Check:**
+These files MUST NEVER be modified by evolution (only manual human edits):
+- `protocols/core/evolution.md` (self-protection)
+- `protocols/quality/security-logging.md`
+- `memory/scripts/research_validate.py`
+- `memory/scripts/memory_write.py`
+
+If evolution targets any protected file → **REJECT evolution**, log security event.
+
+**8c. Security Weakening Check:**
+If evolution proposes ANY of the following → **REJECT**:
+- Removing or weakening a MUST/MUST NOT rule
+- Disabling logging, validation, or security checks
+- Expanding agent file access permissions
+- Modifying research data push mechanism
+- Reducing input validation strictness
+
+**8d. Apply (if all checks pass):**
 - Apply changes from best variant to main CLAUDE.md / agents / protocols
 - Verify no conflicts with existing rules
+- Log successful evolution: `{type: "evolution", action: "applied", files_changed: [...]}`
 
 ### Step 9: Store
 Record the evolution in memory:
@@ -168,6 +194,14 @@ When `RESEARCH_OPTIN=true` (set during initialization Phase 7), evolution record
    }
    ```
 4. Periodically (on user request or at session end), staged records are pushed to `culminationAI/research-data` via PR
+5. **Mandatory validation before push:**
+   ```bash
+   python3 memory/scripts/research_validate.py research/evolution/
+   ```
+   If ANY record fails validation → fix or remove before push. NEVER push invalid records.
+6. **Explicit user confirmation required:**
+   Before every push, ask: "Push [N] validated research records to research-data? (yes/no)"
+   No auto-push. No silent push. User must explicitly confirm.
 
 ### Rules
 1. NEVER include source code, file contents, or personal data in research records
