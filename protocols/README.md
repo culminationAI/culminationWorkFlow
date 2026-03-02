@@ -61,4 +61,18 @@ Quick summary:
 | `agents/` | Agent lifecycle | How to create agents, communicate between them |
 | `knowledge/` | Information management | How to explore, remember, manage context |
 | `quality/` | Verification | How to test, benchmark, clone for safety |
+
+## Quality Protocols
+
+| Protocol | Purpose | File |
+|----------|---------|------|
+| Testing | Benchmarks, evolution pipeline | `quality/testing.md` |
+| Cloning | Isolated instances for testing | `quality/cloning.md` |
+| Security Logging | Input validation, audit trail, sensitive data handling | `quality/security-logging.md` |
 | `project/` | Project-specific | Custom rules for the current project |
+
+## Project Protocols
+
+| Protocol | Purpose | File |
+|----------|---------|------|
+| Monorepo Orchestration | Monorepo archetype — per-package agents, dependency-aware testing | `project/monorepo-orchestration.md` |

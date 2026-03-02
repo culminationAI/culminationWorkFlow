@@ -73,6 +73,7 @@ Coordinator processes pathfinder report:
 
 Create project-specific agents and protocols:
 1. Select domain agents based on archetype (see Phase 2 table)
+   - For Monorepo archetype: follow `protocols/project/monorepo-orchestration.md` for package mapping, agent spawning rules, and coordination patterns
 2. **Apply user priority modifiers to agent selection and configuration:**
    - `speed` → prefer engineers and architects, minimize research agents, configure all agents for concise/direct output (skip boilerplate, prefer diffs)
    - `quality` → add QA/testing focus, configure agents for rigorous output (include tests, type hints, error handling, rationale)

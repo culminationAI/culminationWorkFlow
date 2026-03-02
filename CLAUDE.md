@@ -135,6 +135,8 @@ Then Read the protocol file and inject relevant section into subagent prompt.
 | Context Engineering | Context assembly | `protocols/knowledge/context-engineering.md` |
 | Testing | Verification, benchmarks | `protocols/quality/testing.md` |
 | Cloning | Evolution pipeline | `protocols/quality/cloning.md` |
+| Security Logging | Suspicious input, validation failure | `protocols/quality/security-logging.md` |
+| Monorepo Orchestration | Monorepo archetype detected | `protocols/project/monorepo-orchestration.md` |
 
 **Evolution rule**: After EVERY user correction → MUST store via `protocols/core/evolution.md`.
 
