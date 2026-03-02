@@ -11,11 +11,22 @@ Multi-agent orchestration framework for Claude Code. Adds persistent memory, spe
 
 ## Install
 
+### Quick (one-liner)
+
 ```bash
-bash install.sh
+curl -sL https://raw.githubusercontent.com/culminationAI/culminationWorkFlow/main/install.sh | bash
 ```
 
-This will clone the workflow framework into your project directory.
+### Manual
+
+```bash
+git clone https://github.com/culminationAI/culminationWorkFlow.git /tmp/workflow
+cp -r /tmp/workflow/{.claude,protocols,memory,mcp,infra,secrets,setup.sh,CLAUDE.md,user-identity.md} ./
+chmod +x setup.sh
+rm -rf /tmp/workflow
+```
+
+Both methods install workflow files into your current project directory without overwriting existing files.
 
 ## Next Steps
 
