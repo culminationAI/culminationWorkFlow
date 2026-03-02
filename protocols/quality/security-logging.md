@@ -72,6 +72,7 @@ Fields:
 | 3+ flagged inputs in session | Log WARN, notify coordinator |
 | Any blocked input | Log BLOCK, notify user with explanation |
 | Repeated blocks from same source | Flag as potential adversarial — coordinator decides next step |
+| Coordinator receives escalation warning | Review flagged inputs in audit log. If legitimate → clear flags and note in memory. If suspicious → ask user to re-enter input. If malicious pattern (3+ blocks in single session) → terminate input collection, apply all defaults, store security event in memory: `{type: "security", action: "defaults_applied"}` |
 
 ## Sensitive Data Rules
 

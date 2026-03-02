@@ -23,9 +23,10 @@ protocols/
 │   └── context-engineering.md ← token budgets, compression
 ├── quality/               ← testing and verification
 │   ├── testing.md         ← benchmarks, evolution pipeline
-│   └── cloning.md         ← isolated instances for testing
+│   ├── cloning.md         ← isolated instances for testing
+│   └── security-logging.md ← input validation, audit trail, sensitive data handling
 └── project/               ← project-specific protocols
-    └── (created during initialization by protocol-manager)
+    └── monorepo-orchestration.md ← per-package agents, dependency-aware coordination
 ```
 
 ## How to Find a Protocol

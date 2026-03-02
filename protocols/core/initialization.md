@@ -19,7 +19,8 @@ Check prerequisites:
 2. Verify Python 3.9+ available
 3. Verify Ollama installed (or provide install instructions)
 4. Verify git initialized in workspace
-5. If any missing → provide install instructions, pause until resolved
+5. Verify Node.js 18+ available (required for MCP servers via npx)
+6. If any missing → provide install instructions, pause until resolved
 
 ### Phase 2: Explore
 
@@ -44,6 +45,13 @@ Dispatch pathfinder for architecture scan:
 | Framework/OSS | packages/[framework]/, crates/, examples/ with 50+ items | engineer (framework), engineer (compiler) |
 | Polyglot | Cargo.toml + *.ts/js, or multiple compiled languages | engineer (per-language) |
 | General | mixed or unclear | engineer (general-purpose) |
+
+**Multi-archetype resolution:** If multiple archetypes match (e.g., Airflow = Data Pipeline + Framework/OSS):
+1. Rank by signal count — archetype with most matching signals = primary
+2. Primary archetype determines base agent set
+3. Secondary archetypes add supplementary agents (no duplicates)
+4. Store all detected archetypes in exploration report: `{primary: "Data Pipeline", secondary: ["Framework/OSS", "Monorepo"]}`
+5. In Phase 4, create agents for primary first, then add missing agents from secondary archetypes
 
 5. Produce structured exploration report → `docs/exploration-report.md`
 
