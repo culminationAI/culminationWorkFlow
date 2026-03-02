@@ -60,13 +60,15 @@ else
   warn "setup.sh already exists — skipping"
 fi
 
-# CLAUDE.md — only if not present
-if [ ! -f "$TARGET_DIR/CLAUDE.md" ]; then
-  cp "$TMPDIR/workflow/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
-  ok "CLAUDE.md (with initialization marker)"
-else
-  warn "CLAUDE.md already exists — skipping (add initialization marker manually if needed)"
-fi
+# Single files
+for file in CLAUDE.md user-identity.md; do
+  if [ ! -f "$TARGET_DIR/$file" ]; then
+    cp "$TMPDIR/workflow/$file" "$TARGET_DIR/$file"
+    ok "$file"
+  else
+    warn "$file already exists — skipping"
+  fi
+done
 
 echo ""
 echo "================================================"
