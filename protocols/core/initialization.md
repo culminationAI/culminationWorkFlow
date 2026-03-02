@@ -17,10 +17,11 @@ Bootstrap a new project workspace through evolution. Onboarding IS evolution —
 Check prerequisites:
 1. Verify Docker installed and running
 2. Verify Python 3.9+ available
-3. Verify Ollama installed (or provide install instructions)
-4. Verify git initialized in workspace
-5. Verify Node.js 18+ available (required for MCP servers via npx)
-6. If any missing → provide install instructions, pause until resolved
+3. Verify git initialized in workspace
+4. Verify Node.js 18+ available (required for MCP servers via npx)
+5. If any missing → provide install instructions, pause until resolved
+
+Note: Ollama is optional (for higher quality embeddings). Embeddings are handled via fastembed by default — no external services required. See `protocols/knowledge/memory.md` for details.
 
 ### Phase 2: Explore
 
@@ -190,7 +191,7 @@ This is the natural bridge from onboarding to productive work. The user should f
 [Session start]
 Coordinator detects <!-- _WORKFLOW_NEEDS_INIT --> in CLAUDE.md
 
-Phase 1: ✅ Docker running, Python 3.11, Ollama installed, git initialized
+Phase 1: ✅ Docker running, Python 3.11, git initialized, Node.js available
 Phase 2: Pathfinder scans → "Next.js 14 app with TypeScript, Prisma ORM,
          PostgreSQL. Archetype: Web App. 3 main modules: auth, dashboard, API."
 Phase 3: User confirms. Name: "Alex", style: informal, language: English.

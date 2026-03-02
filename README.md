@@ -9,7 +9,6 @@ Multi-agent orchestration framework for Claude Code. Transforms a single AI assi
 - Python 3.9+
 - Node.js 18+ (for MCP servers)
 - Git
-- [Ollama](https://ollama.ai) (for local embeddings)
 
 ## Install
 
@@ -37,7 +36,7 @@ Both methods install workflow files into your current project directory without 
 ## Next Steps
 
 1. Run `./setup.sh --check` to verify all prerequisites
-2. Run `./setup.sh` to deploy infrastructure (Qdrant, Neo4j, Ollama embeddings)
+2. Run `./setup.sh` to deploy infrastructure (Qdrant, Neo4j)
 3. Edit `secrets/.env` — fill in your API keys
 4. Open your project in Claude Code
 5. Claude will detect the workflow and start initialization automatically (9 phases)
@@ -71,9 +70,9 @@ On first session, the workflow automatically:
 
 Persistent memory powered by local models:
 
-- **Qdrant** — vector store for semantic search (1024d embeddings)
+- **Qdrant** — vector store for semantic search (384d embeddings)
 - **Neo4j** — knowledge graph for entity relationships
-- **Ollama bge-m3** — local embedding model (no API calls)
+- **fastembed** — local embedding model (no API calls, no external services)
 
 Memory is managed by the pathfinder agent and accessed through scripts in `memory/scripts/`.
 

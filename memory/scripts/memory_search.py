@@ -17,21 +17,21 @@ NEO4J_URL = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USER = os.environ.get("NEO4J_USERNAME", "neo4j")
 NEO4J_PASS = os.environ.get("NEO4J_PASSWORD", "workflow")
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-EMBED_MODEL = "bge-m3"
-EMBED_DIMS = 1024
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBED_DIMS = 384
+_embedder = None  # lazy init
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 COLLECTION = "workflow_memory"
 
 
 def get_embedding(text: str) -> list[float]:
-    resp = requests.post(
-        f"{OLLAMA_URL}/api/embed",
-        json={"model": EMBED_MODEL, "input": text},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()["embeddings"][0][:EMBED_DIMS]
+    """Get embedding via fastembed (local, no external API)."""
+    global _embedder
+    if _embedder is None:
+        from fastembed import TextEmbedding
+        _embedder = TextEmbedding(model_name=EMBED_MODEL)
+    embeddings = list(_embedder.embed([text]))
+    return embeddings[0].tolist()[:EMBED_DIMS]
 
 
 def search(query: str, limit: int = 10, user_id: str | None = None) -> list[dict]:

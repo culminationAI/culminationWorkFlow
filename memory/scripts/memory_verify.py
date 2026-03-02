@@ -4,7 +4,7 @@
 Checks:
 1. Qdrant health & collection stats
 2. Neo4j connectivity & graph stats
-3. Ollama embedding service
+3. Embeddings service (fastembed all-MiniLM-L6-v2)
 4. Write → Search roundtrip (canary test)
 5. Duplicate detection
 6. Garbage detection (short/meaningless records)
@@ -26,8 +26,8 @@ from datetime import datetime, timezone
 
 import requests
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-EMBED_MODEL = "bge-m3"
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBED_DIMS = 384
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 COLLECTION = "workflow_memory"
 NEO4J_URL = os.environ.get("NEO4J_URL", "http://localhost:7474")
@@ -111,33 +111,26 @@ class Verifier:
         except Exception as e:
             self.check("Neo4j reachable", False, str(e))
 
-    def check_ollama(self):
-        print("\n── Ollama Embeddings ──")
+    def check_embeddings(self):
+        print("\n── Embeddings (fastembed) ──")
         try:
-            r = requests.post(
-                f"{OLLAMA_URL}/api/embed",
-                json={"model": EMBED_MODEL, "input": "test embedding"},
-                timeout=15,
-            )
-            r.raise_for_status()
-            emb = r.json().get("embeddings", [[]])[0]
-            dims = len(emb)
-            self.check("Ollama bge-m3", True, f"{dims}d vectors")
+            from fastembed import TextEmbedding
+            embedder = TextEmbedding(model_name=EMBED_MODEL)
+            embeddings = list(embedder.embed(["test embedding"]))
+            dims = len(embeddings[0])
+            self.check("fastembed all-MiniLM-L6-v2", True, f"{dims}d vectors")
         except Exception as e:
-            self.check("Ollama bge-m3", False, str(e))
+            self.check("fastembed all-MiniLM-L6-v2", False, str(e))
 
     def check_roundtrip(self):
         print("\n── Roundtrip Test ──")
         canary_id = str(uuid.uuid4())
         try:
             # 1. Embed
-            r = requests.post(
-                f"{OLLAMA_URL}/api/embed",
-                json={"model": EMBED_MODEL, "input": CANARY_TEXT},
-                timeout=15,
-            )
-            r.raise_for_status()
-            vector = r.json()["embeddings"][0][:1024]
+            from fastembed import TextEmbedding
+            embedder = TextEmbedding(model_name=EMBED_MODEL)
+            embeddings = list(embedder.embed([CANARY_TEXT]))
+            vector = embeddings[0].tolist()[:EMBED_DIMS]
             self.check("Embed canary", True)
 
             # 2. Write
@@ -260,7 +253,7 @@ class Verifier:
         
         self.check_qdrant()
         self.check_neo4j()
-        self.check_ollama()
+        self.check_embeddings()
         if not quick:
             self.check_roundtrip()
 

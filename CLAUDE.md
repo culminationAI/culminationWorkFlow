@@ -85,7 +85,7 @@ Start response with `[T{n}]` marker.
 
 ## Memory Protocol
 
-Custom scripts (zero API cost, local Qdrant + Neo4j + Ollama bge-m3):
+Custom scripts (zero API cost, local Qdrant + Neo4j + fastembed):
 
 ```bash
 # Search (~1s)

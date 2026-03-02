@@ -4,7 +4,7 @@ set -euo pipefail
 # ============================================================
 # Workflow Setup Script
 # Deploys: coordinator + subagents + protocols + memory layer
-# Prerequisites: Docker, Python 3.9+, Node.js 18+, Ollama
+# Prerequisites: Docker, Python 3.9+, Node.js 18+
 # ============================================================
 
 WORKSPACE_ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -53,16 +53,6 @@ else
   warn "Install: curl -LsSf https://astral.sh/uv/install.sh | sh"
 fi
 
-# Check Ollama (for embeddings)
-if command -v ollama >/dev/null 2>&1; then
-  ok "Ollama found"
-  OLLAMA_OK=true
-else
-  warn "Ollama not found. Memory embeddings require it."
-  warn "Install: https://ollama.ai/download"
-  OLLAMA_OK=false
-fi
-
 ok "All critical prerequisites met"
 
 # --- 2. Install Python dependencies ---
@@ -74,8 +64,8 @@ if ! $CHECK_ONLY; then
     ok "Virtual environment created"
   fi
   source "$WORKSPACE_ROOT/.venv/bin/activate"
-  python3 -m pip install --quiet requests
-  ok "requests installed (in .venv)"
+  python3 -m pip install --quiet requests fastembed
+  ok "requests + fastembed installed (in .venv)"
 fi
 
 # --- 3. Setup secrets ---
@@ -190,23 +180,13 @@ if ! $CHECK_ONLY; then
       -H "Content-Type: application/json" \
       -d '{
         "vectors": {
-          "size": 1024,
+          "size": 384,
           "distance": "Cosine"
         }
       }' >/dev/null 2>&1
-    ok "Collection '$COLLECTION' created (1024 dims, cosine)"
+    ok "Collection '$COLLECTION' created (384 dims, cosine)"
   fi
 
-  # --- 9. Pull Ollama embedding model ---
-  if $OLLAMA_OK; then
-    step "Pulling Ollama embedding model (bge-m3)..."
-    if ollama list 2>/dev/null | grep -q "bge-m3"; then
-      ok "bge-m3 already pulled"
-    else
-      ollama pull bge-m3
-      ok "bge-m3 pulled"
-    fi
-  fi
 fi
 
 # --- 10. Summary ---
@@ -218,7 +198,6 @@ echo ""
 echo "Infrastructure:"
 echo "  Qdrant:  http://localhost:$QDRANT_PORT"
 echo "  Neo4j:   http://localhost:$NEO4J_HTTP_PORT (bolt://localhost:$NEO4J_BOLT_PORT)"
-echo "  Ollama:  http://localhost:11434"
 echo ""
 echo "Memory scripts:"
 echo "  Search:  python3 memory/scripts/memory_search.py \"query\""

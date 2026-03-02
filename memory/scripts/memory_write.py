@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Direct memory writer: embed via Ollama bge-m3, store in Qdrant + Neo4j.
+"""Direct memory writer: embed via fastembed all-MiniLM-L6-v2, store in Qdrant + Neo4j.
 
 Usage:
     python3 memory_write.py '<json_array>'
@@ -80,9 +80,9 @@ def safe_json_load(source, max_bytes: int = MAX_JSON_BYTES):
         return json.loads(source)
 
 # --- Config ---
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-EMBED_MODEL = "bge-m3"
-EMBED_DIMS = 1024
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBED_DIMS = 384
+_embedder = None  # lazy init
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 COLLECTION = "workflow_memory"
@@ -93,20 +93,20 @@ NEO4J_PASS = os.environ.get("NEO4J_PASSWORD", "workflow")
 NEO4J_DB = "neo4j"
 
 
+def _get_embedder():
+    """Lazy-init fastembed TextEmbedding (avoids slow import at module load time)."""
+    global _embedder
+    if _embedder is None:
+        from fastembed import TextEmbedding
+        _embedder = TextEmbedding(model_name=EMBED_MODEL)
+    return _embedder
+
+
 def get_embedding(text: str) -> list[float]:
-    """Get embedding from Ollama bge-m3."""
-    resp = requests.post(
-        f"{OLLAMA_URL}/api/embed",
-        json={"model": EMBED_MODEL, "input": text},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    # Ollama returns {"embeddings": [[...]]}
-    embeddings = data.get("embeddings", [])
-    if embeddings:
-        return embeddings[0][:EMBED_DIMS]
-    raise ValueError(f"No embeddings returned: {data}")
+    """Get embedding via fastembed (local, no external API)."""
+    embedder = _get_embedder()
+    embeddings = list(embedder.embed([text]))
+    return embeddings[0].tolist()[:EMBED_DIMS]
 
 
 def qdrant_upsert(point_id: str, vector: list[float], payload: dict[str, Any]) -> None:
