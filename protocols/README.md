@@ -8,6 +8,7 @@ Protocols are reusable behavioral patterns for the coordinator and agents. This 
 protocols/
 ├── README.md              ← this file
 ├── core/                  ← fundamental workflow mechanics
+│   ├── dispatcher.md      ← request classification, routing, prompt checklist
 │   ├── initialization.md  ← project onboarding (via evolution)
 │   ├── evolution.md       ← self-improvement pipeline
 │   ├── coordination.md    ← parallel agent orchestration
@@ -56,7 +57,7 @@ Quick summary:
 
 | Directory | Purpose | Example Protocols |
 |-----------|---------|-------------------|
-| `core/` | Workflow fundamentals | How the system boots, evolves, optimizes |
+| `core/` | Workflow fundamentals | How the system boots, routes requests, evolves, optimizes |
 | `agents/` | Agent lifecycle | How to create agents, communicate between them |
 | `knowledge/` | Information management | How to explore, remember, manage context |
 | `quality/` | Verification | How to test, benchmark, clone for safety |

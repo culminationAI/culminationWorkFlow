@@ -89,7 +89,7 @@ Dispatch pathfinder for system validation:
 Ask user:
 > "Would you like to participate in anonymous research? Architecture patterns and agent configurations will be shared to github.com/culminationAI/research-data. All data is visible in the `research/` directory before any push."
 
-- If yes → create `research/` directory, enable pathfinder data collection
+- If yes → create `research/` directory, enable pathfinder data collection, and enable evolution feedback collection (anonymous evolution records written to `research/evolution/` per the Research Data Collection section in `protocols/core/evolution.md`)
 - If no → skip, set `RESEARCH_OPTIN=false` in config
 
 ### Phase 8: Evolution
@@ -102,6 +102,22 @@ Workflow graduates from version 0.1 → 1.0:
 5. Update CLAUDE.md: change `<!-- WORKFLOW_VERSION: 0.1 -->` to `<!-- WORKFLOW_VERSION: 1.0 -->`
 6. Store initialization record in memory: `{type: "evolution", subtype: "initialization"}`
 
+### Phase 9: Planning
+
+Transition from setup to productive work:
+1. Coordinator enters planning mode
+2. Presents initialization summary to user:
+   - Project archetype detected
+   - Agents created
+   - Infrastructure deployed
+   - Evolution status
+3. Asks user: "What are your current tasks for this project?"
+4. Collects task list and priorities
+5. Creates initial task plan in `docs/spec/PLAN.md`
+6. Exits planning mode and begins work on the first task
+
+This is the natural bridge from onboarding to productive work. The user should feel that the workflow is ready and eager to help.
+
 ## Rules
 
 1. NEVER skip Phase 2 (Explore) — even for small projects, pathfinder must scan
@@ -110,6 +126,7 @@ Workflow graduates from version 0.1 → 1.0:
 4. MUST store at least 5 memory records during initialization (preferences + project facts)
 5. If any phase fails → stop, report error, do NOT proceed to next phase
 6. Initialization is idempotent — running again on an initialized project re-runs exploration but preserves existing agents and preferences
+7. Phase 9 MUST be the last phase — never skip the transition to planning mode
 
 ## Example
 
@@ -127,4 +144,6 @@ Phase 5: Docker deployed, memory collection created, bot skipped.
 Phase 6: All tests pass. Memory roundtrip OK. Agents respond. Protocols found.
 Phase 7: User opts in to research.
 Phase 8: Evolution complete. Version → 1.0. Workflow ready.
+Phase 9: Coordinator enters planning mode. "What are your current tasks?"
+         User: "Build REST API for user management." → First task planned.
 ```

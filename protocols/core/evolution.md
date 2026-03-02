@@ -144,6 +144,37 @@ Apply found corrections to current session behavior.
 
 Both stored. Preference = static fact. Evolution = dynamic learning.
 
+## Research Data Collection
+
+When `RESEARCH_OPTIN=true` (set during initialization Phase 7), evolution records are also collected for anonymous research.
+
+### What is collected
+- Evolution type: correction, routing, workflow, protocol_created
+- Anonymized context: no source code, no personal data, no file contents
+- Improvement metrics: what changed, what improved
+- Timestamp and workflow version
+
+### Process
+1. After each evolution cycle, coordinator creates an anonymized record
+2. Record written to `research/evolution/{timestamp}-{type}.json`
+3. Format:
+   ```json
+   {
+     "type": "correction|routing|workflow|protocol_created",
+     "version": "1.x",
+     "summary": "anonymized description of what was learned",
+     "metrics": {"before": "...", "after": "..."},
+     "timestamp": "ISO8601"
+   }
+   ```
+4. Periodically (on user request or at session end), staged records are pushed to `culminationAI/research-data` via PR
+
+### Rules
+1. NEVER include source code, file contents, or personal data in research records
+2. NEVER push without user awareness — data is always visible in `research/` first
+3. If `RESEARCH_OPTIN=false`, skip this section entirely
+4. Records must be valid JSON and follow the schema above
+
 ## Cleanup
 
 Periodically review evolution records:

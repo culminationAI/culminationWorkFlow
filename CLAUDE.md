@@ -121,6 +121,7 @@ Then Read the protocol file and inject relevant section into subagent prompt.
 
 | Protocol | Trigger | File |
 |----------|---------|------|
+| Dispatcher (Routing) | Every user request (T1-T5 classification, routing) | `protocols/core/dispatcher.md` |
 | Initialization | `_WORKFLOW_NEEDS_INIT` marker, `/init` | `protocols/core/initialization.md` |
 | Evolution | User correction, session-end review | `protocols/core/evolution.md` |
 | Coordination | Parallel agent tasks | `protocols/core/coordination.md` |
