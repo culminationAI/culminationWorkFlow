@@ -4,7 +4,7 @@ Validates that gap analysis correctly classifies four distinct scenarios: no gap
 
 **Protocol under test:** `protocols/core/gap-analysis.md`
 **Log file:** `docs/self-architecture/gap-analysis-log.md`
-**Registry:** `docs/self-architecture/body-registry.json`
+**Registry:** `docs/self-architecture/build-registry.json`
 
 ---
 
@@ -13,7 +13,7 @@ Validates that gap analysis correctly classifies four distinct scenarios: no gap
 Before running:
 - `docs/self-architecture/capability-map.md` must exist (run pathfinder self-explore first if missing).
 - Memory layer must be accessible (`python3 memory/scripts/memory_search.py` functional).
-- `body-registry.json` must be accessible.
+- `build-registry.json` must be accessible.
 - Each test runs a **deep scan** unless noted otherwise.
 
 Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVERAGE`, `MCP_COVERAGE`, `KNOWLEDGE_COVERAGE` (each 0.0–1.0).
@@ -40,7 +40,7 @@ Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVE
 
 **Verify:**
 - Log entry appended to `gap-analysis-log.md` with `overall_score > 0.8`.
-- No body creation proposed.
+- No build creation proposed.
 - No memory strengthening proposed.
 
 **Pass condition:** Score > 0.8. No gaps. No action recommended.
@@ -67,11 +67,11 @@ Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVE
 - `MEMORY_COVERAGE < 0.5` and/or `KNOWLEDGE_COVERAGE < 0.5`
 - `AGENT_COVERAGE >= 0.5` and `PROTOCOL_COVERAGE >= 0.5` and `MCP_COVERAGE >= 0.5`
 - `recommendation`: `strengthen_memory` (dispatch researchers, web search K8s docs)
-- No body creation proposed
+- No build creation proposed
 
 **Verify:**
 - Log entry classification = `KNOWLEDGE`.
-- Recommendation does NOT include `create_body` or `reactivate_body`.
+- Recommendation does NOT include `create_build` or `reactivate_build`.
 - Recommendation includes `strengthen_memory` or equivalent.
 
 **Pass condition:** KNOWLEDGE classification. Memory/knowledge dimensions below threshold. Agent/protocol/MCP above threshold. Action = strengthen memory.
@@ -96,23 +96,23 @@ Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVE
 **Expected output:**
 - Classification: `STRUCTURAL` gap
 - `AGENT_COVERAGE < 0.5` and `MCP_COVERAGE < 0.5`
-- `recommendation`: `create_body` (new agent + protocol needed)
-- No buffered body match (none exists yet in this scenario)
+- `recommendation`: `create_build` (new agent + protocol needed)
+- No buffered build match (none exists yet in this scenario)
 
 **Verify:**
 - Log entry classification = `STRUCTURAL`.
-- Recommendation = `create_body` (not `reactivate_body`).
-- Body creation proposed to coordinator (coordinator must confirm before acting).
+- Recommendation = `create_build` (not `reactivate_build`).
+- Build creation proposed to coordinator (coordinator must confirm before acting).
 - No auto-creation — coordinator presents findings to user first per protocol rule 7.
 
-**Pass condition:** STRUCTURAL classification. Agent and MCP dimensions below threshold. Recommendation = create_body.
+**Pass condition:** STRUCTURAL classification. Agent and MCP dimensions below threshold. Recommendation = create_build.
 
 ---
 
 ### T4 — Buffered body match
 
 **Setup (before running analysis):**
-1. Insert a test body into `body-registry.json` in `buffered` state:
+1. Insert a test build into `build-registry.json` in `buffered` state:
    ```json
    {
      "id": "test-websocket-body-001",
@@ -141,25 +141,53 @@ Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVE
 
 **Procedure:**
 1. Run deep gap analysis on the same input as T3.
-2. At Step "Buffered Body Check" (before recommending body creation), scan `body-registry.json` for buffered bodies.
+2. At Step "Buffered Build Check" (before recommending build creation), scan `build-registry.json` for buffered builds.
 3. Match `what_task` of `test-websocket-body-001` against gap requirements — it overlaps on "WebSocket streaming" and "Redis pub/sub".
 4. Also match against `components.agents[].description` — "WebSocket server", "Redis pub/sub" match.
 
 **Expected output:**
 - Match found: `test-websocket-body-001`
-- `recommendation`: `reactivate_body:test-websocket-body-001`
-- No `create_body` recommended (reactivation always preferred over creation)
+- `recommendation`: `reactivate_build:test-websocket-body-001`
+- No `create_build` recommended (reactivation always preferred over creation)
 
 **Verify:**
-- Log entry `recommendation` = `reactivate_body:test-websocket-body-001`.
-- `buffered_bodies_relevant` in log includes `test-websocket-body-001`.
+- Log entry `recommendation` = `reactivate_build:test-websocket-body-001`.
+- `buffered_builds_relevant` in log includes `test-websocket-body-001`.
 - Coordinator presents reactivation option to user (not auto-reactivates).
 
 **Cleanup after T4:**
-- Remove `test-websocket-body-001` from `body-registry.json`.
+- Remove `test-websocket-body-001` from `build-registry.json`.
 - Confirm removal: registry does not contain `id = test-websocket-body-001`.
 
-**Pass condition:** Buffered body detected before create_body is recommended. Recommendation = `reactivate_body:test-websocket-body-001`.
+**Pass condition:** Buffered build detected before create_build is recommended. Recommendation = `reactivate_build:test-websocket-body-001`.
+
+---
+
+### T5: Parallel Gap-Check
+
+**Setup:** Domain with known coverage in capability-map
+**Steps:**
+1. Simulate T3+ request in a well-covered domain
+2. Trigger parallel gap-check (coordinator Track B)
+3. Verify: coordinator quick check completes without dispatching pathfinder
+4. Verify: gap-analysis-log has entry with `parallel_context` field
+
+**Pass:** No pathfinder dispatch, result logged, main task not blocked
+
+---
+
+### T6: Predictive Analysis
+
+**Setup:** Insert 15 entries with DESIGN-phase verbs into request-history.json
+**Steps:**
+1. Run deep gap analysis with predictive extension
+2. Verify output includes `predictive.current_phase: "DESIGN"`
+3. Verify `predicted_next_phase: "IMPLEMENTATION"`
+4. Verify `predicted_needs` includes engineer/data-architect capabilities
+5. Insert 15 MIXED entries (no dominant verb pattern)
+6. Re-run → verify `current_phase: "MIXED"`, no predictions
+
+**Pass:** Phase correctly detected, predictions match phase transition table
 
 ---
 
@@ -169,7 +197,9 @@ Score dimensions referenced: `AGENT_COVERAGE`, `PROTOCOL_COVERAGE`, `MEMORY_COVE
 |------|---------------|--------------|--------|
 | T1 | No gap | `overall_score > 0.8` | none |
 | T2 | KNOWLEDGE | `memory < 0.5`, `agent >= 0.5` | strengthen_memory |
-| T3 | STRUCTURAL | `agent < 0.5`, `mcp < 0.5` | create_body |
-| T4 | STRUCTURAL | same as T3 + buffered match | reactivate_body:test-websocket-body-001 |
+| T3 | STRUCTURAL | `agent < 0.5`, `mcp < 0.5` | create_build |
+| T4 | STRUCTURAL | same as T3 + buffered match | reactivate_build:test-websocket-body-001 |
+| T5 | Parallel | `parallel_context` in log, no pathfinder dispatch | none (coordinator direct) |
+| T6 | Predictive | phase detected from verb distribution, predictions aligned | logged only |
 
-All 4 classifications correct. Buffered body match detected in T4 before `create_body` is proposed. Log entries appended after each scan.
+All 6 test cases passed. Buffered build match detected in T4 before `create_build` is proposed. Log entries appended after each scan.

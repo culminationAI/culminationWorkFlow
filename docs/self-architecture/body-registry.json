@@ -1,8 +1,0 @@
-{
-  "schema_version": "1.0",
-  "max_active_bodies": 2,
-  "default_ttl_sessions": 10,
-  "default_ttl_days": 14,
-  "buffer_expiry_days": 30,
-  "bodies": []
-}

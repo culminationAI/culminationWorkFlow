@@ -21,7 +21,7 @@ Project exploration, knowledge management, memory validation, and connection map
 5. **Knowledge Extraction** — extract structured data from docs/code into memory (Qdrant vectors + Neo4j graph). Transform unstructured information into searchable records.
 6. **User Identity Exploration** — explore stored user preferences, patterns, decisions for evolution. Identify trends and suggest improvements.
 7. **Web Research** — search web for best practices, documentation, library references when needed for project analysis.
-8. **Self-Explore** — scan the workflow's own architecture (agents, protocols, MCP, memory state) and produce a capability map. Used by self-evolution protocol for gap analysis. Output: `docs/self-architecture/capability-map.md`.
+8. **Self-Explore** — scan the workflow's own architecture (agents, protocols, MCP, memory state) and produce a capability map. Used by self-build-up protocol for gap analysis. Output: `docs/self-architecture/capability-map.md`.
 
 ## Tools
 
@@ -70,7 +70,7 @@ Trigger: initialization Phase 2 (unfamiliar stack), coordinator request
 4. Output: research report with key findings and recommendations
 
 ### Self-Explore
-Trigger: self-evolution protocol Phase 1, coordinator request `/self-explore`
+Trigger: self-build-up protocol Phase 1, coordinator request `/self-explore`
 
 Scan the workflow's **own architecture** (introspection, not user project) and produce a capability map.
 
@@ -101,6 +101,18 @@ Scan the workflow's **own architecture** (introspection, not user project) and p
    - Protocol index completeness: every `protocols/**/*.md` listed?
    - Subagent table completeness: every `.claude/agents/*.md` listed?
 
+5.5. **Request trajectory** — Read `docs/self-architecture/request-history.json`:
+   - Count entries by `domain` → identify dominant domains (semantic clusters)
+   - Count entries by `verb` → identify dominant activities
+   - Analyze last 20 entries chronologically → detect phase shifts
+   - **Neo4j:** Query graph for domain-node connections related to recent requests
+   - **Qdrant:** Semantic similarity clustering of task summaries
+   - Include "Trajectory Analysis" section in capability-map.md output:
+     - Dominant domains (last 20 requests)
+     - Activity pattern (verb distribution)
+     - Phase classification (DESIGN/IMPLEMENTATION/TESTING/DEPLOYMENT/MIXED)
+     - Trend: accelerating, stable, shifting
+
 6. **Cross-reference integrity**:
    - Every agent in `.claude/agents/` has routing entry in `protocols/core/dispatcher.md`?
    - Every protocol in `protocols/` indexed in CLAUDE.md protocol table?
@@ -114,6 +126,7 @@ Scan the workflow's **own architecture** (introspection, not user project) and p
    - Memory health summary
    - Cross-reference integrity report
    - Known inconsistencies
+   - Trajectory Analysis: dominant domains, activity patterns, phase classification
    - Last scan timestamp
 
 **Important**: Self-explore scans the SYSTEM, not the user's project code. It is pure introspection. It does NOT modify any agent or protocol — only writes capability-map.md.

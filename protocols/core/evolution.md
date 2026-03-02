@@ -2,7 +2,7 @@
 
 ## Overview
 
-Coordinator improves through structured self-evolution. Changes flow through: detect → plan → clone → test → evaluate → transform → store.
+Coordinator improves through structured evolution. Changes flow through: detect → plan → clone → test → evaluate → transform → store.
 
 Two paths based on complexity:
 - **Quick path** (single rule fix): detect → store → verify on 2-3 mental test cases → done
@@ -20,20 +20,20 @@ Miner produces self-architecture analysis revealing structural issues.
 ### 3. Internal Need
 Coordinator identifies inefficiency, redundancy, or inconsistency during work.
 
-### 4. Self-Evolution Gap Detection
-Gap analysis (see `protocols/core/gap-analysis.md`) identifies a STRUCTURAL gap — the system lacks agents, protocols, or MCP tools needed for a task. Flows through the self-evolution pipeline (`protocols/core/self-evolution.md`) instead of the standard pipeline. Shares security gate (Step 8) and storage (Step 9) with this protocol.
+### 4. Self Build-Up Gap Detection
+Gap analysis (see `protocols/core/gap-analysis.md`) identifies a STRUCTURAL gap — the system lacks agents, protocols, or MCP tools needed for a task. Flows through the self-build-up pipeline (`protocols/core/self-build-up.md`) instead of the standard pipeline. Shares security gate (Step 8) and storage (Step 9) with this protocol.
 
-## Relationship to Self-Evolution
+## Relationship to Self Build-Up
 
 This protocol handles **reactive** evolution (corrections, routing fixes, workflow improvements).
-`protocols/core/self-evolution.md` handles **proactive** evolution (gap detection → temporary capability extension via "evolution bodies").
+`protocols/core/self-build-up.md` handles **proactive** evolution (gap detection → temporary capability extension via "builds").
 
 Shared:
 - Step 8 (Security Gate) — same immutable/protected file checks
 - Step 9 (Store) — same memory format and metadata
 - `protocols/quality/testing.md` — same benchmark framework
 
-Key difference: evolution changes are **permanent**. Self-evolution creates **temporary** bodies with TTL that downgrade to a buffer when unused.
+Key difference: evolution changes are **permanent**. Self build-up creates **temporary** builds with TTL that downgrade to a buffer when unused.
 
 ## Pipeline
 

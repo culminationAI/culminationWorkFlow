@@ -18,14 +18,16 @@ Pathfinder's operational protocol for systematic project exploration and knowled
 
 Full codebase analysis → structured report.
 
-1. **Discover** — Glob for key files:
+1. **Coordinator:** Glob for key files → file inventory:
    - Package managers: `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `Gemfile`, `pom.xml`
    - Configs: `tsconfig.json`, `.eslintrc*`, `docker-compose*`, `Makefile`, `.env*`
    - CI/CD: `.github/workflows/*`, `.gitlab-ci.yml`, `Jenkinsfile`
    - Docs: `README*`, `docs/`, `CHANGELOG*`
-2. **Analyze** — Read entry points, map imports, identify patterns
-3. **Classify** — Determine project archetype (see initialization protocol)
-4. **Report** — Write structured report to `docs/exploration-report.md`:
+2. **Coordinator:** Read entry points and configs → extract stack data (languages, frameworks, versions)
+3. **Coordinator:** Grep for patterns (imports, exports, class definitions, routes) → pattern inventory
+4. **Pathfinder:** Receives file inventory + pattern inventory → Neo4j graph analysis → architecture classification (determine project archetype per initialization protocol)
+5. **Pathfinder:** Cross-reference with existing graph → identify gaps, suggest improvements, recommend agents
+6. **Pathfinder:** Write structured report to `docs/exploration-report.md`:
    - Stack: languages, frameworks, versions
    - Architecture: pattern, layers, modules
    - Dependencies: external packages, internal modules
@@ -36,10 +38,10 @@ Full codebase analysis → structured report.
 
 Structured data from docs/code → memory (Qdrant + Neo4j).
 
-1. **Identify sources** — find documentation, comments, README files
-2. **Extract facts** — parse structured information (APIs, schemas, rules)
-3. **Validate** — cross-reference facts with code
-4. **Store** — write to memory via `memory/scripts/memory_write.py`:
+1. **Coordinator:** Glob + Read → locate documentation files, README files, inline comments
+2. **Pathfinder:** Semantic analysis of discovered docs → extract structured facts (APIs, schemas, rules, decisions)
+3. **Coordinator:** Grep code to cross-reference extracted facts → validate claims against actual implementation
+4. **Coordinator:** Bash `python3 memory/scripts/memory_write.py` → store validated records:
    - One fact per record, max 200 tokens
    - Set appropriate metadata: `{type: "decision|pattern|architecture"}`
    - Check for duplicates before writing
@@ -48,47 +50,47 @@ Structured data from docs/code → memory (Qdrant + Neo4j).
 
 Verify, validate, deduplicate, clean up.
 
-1. **Health check** — `python3 memory/scripts/memory_verify.py --quick`
-2. **Duplicate scan** — `python3 memory/scripts/memory_dedupe.py --dry-run`
-3. **Stale detection** — search for records referencing deleted/moved files
-4. **Garbage detection** — find records <15 chars or matching known garbage patterns
-5. **Cleanup** — with coordinator approval: `python3 memory/scripts/memory_cleanup.py --execute`
+1. **Coordinator:** Bash `python3 memory/scripts/memory_verify.py --quick` → health check output
+2. **Coordinator:** Bash `python3 memory/scripts/memory_dedupe.py --dry-run` → duplicate report
+3. **Pathfinder:** Neo4j query → find records referencing deleted or moved files → stale record list
+4. **Coordinator:** Read all outputs (health check + dupes + stale list) → present consolidated summary to coordinator for approval
+5. **Coordinator (with approval):** Bash `python3 memory/scripts/memory_cleanup.py --execute` → apply cleanup
 6. **Report** — maintenance summary: records checked, dupes found, stale flagged, garbage removed
 
 ### 4. Post-Change Verification
 
 Re-scan after major changes.
 
-1. **Get diff** — list of changed/added/deleted files (from coordinator or git)
-2. **Search memory** — find records referencing changed files
-3. **Re-read** — read changed files, compare with memory records
-4. **Update** — fix stale records, remove records for deleted files
-5. **Flag** — report inconsistencies between docs and implementation
-6. **Verify docs** — check if documentation still matches current state
+1. **Coordinator:** Bash `git diff` or receive list of changed/added/deleted files from coordinator
+2. **Coordinator:** Bash `python3 memory/scripts/memory_search.py` → find records referencing changed files
+3. **Coordinator:** Read changed files → compare content against search results, identify stale records
+4. **Coordinator:** Bash `memory_write.py` → edit stale records to reflect current state, remove records for deleted files
+5. **Pathfinder:** Neo4j → verify graph edges referencing changed files are still valid
+6. **Flag** — report inconsistencies between docs and implementation
 
 ### 5. Web Research
 
 Find external information for project analysis.
 
-1. **Identify unknowns** — frameworks, libraries, patterns not in memory
-2. **Search** — WebSearch for documentation, best practices
-3. **Summarize** — extract relevant information
-4. **Store** — write findings to memory with `{type: "reference"}`
+1. **Coordinator:** Identify unknowns from current context — frameworks, libraries, patterns not in memory
+2. **Coordinator:** WebSearch + WebFetch → documentation, official specs, best practices
+3. **Pathfinder:** Summarize complex or unfamiliar domain findings into structured conclusions (if domain is well-known, coordinator summarizes directly)
+4. **Coordinator:** Bash `python3 memory/scripts/memory_write.py` → store findings with `{type: "reference"}`, cite source URL per record
 
 ### 6. Self-Explore
 
 Introspective scan of the workflow's own architecture — not the user's project code.
 
-1. **Scan agents** — Glob `.claude/agents/*.md`, parse YAML frontmatter + expertise
-2. **Scan protocols** — Glob `protocols/**/*.md`, parse purpose + triggers + dependencies
-3. **Scan MCP** — Read `mcp/mcp.json` + `mcp/mcp-full.json`, map active vs available
-4. **Scan memory** — Run `memory_verify.py --quick`, count records by type
-5. **Parse CLAUDE.md** — version, rules, protocol index, subagent table
-6. **Cross-reference** — agents ↔ dispatcher routing, protocols ↔ CLAUDE.md index, MCP ↔ agent declarations
-7. **Output** — Write `docs/self-architecture/capability-map.md` with full capability report
+1. **Coordinator:** Glob `.claude/agents/*.md` + Read → agent inventory (names, expertise, routing rules)
+2. **Coordinator:** Glob `protocols/**/*.md` + Read → protocol inventory (purpose, triggers, dependencies)
+3. **Coordinator:** Read `mcp/mcp.json` + `mcp/mcp-full.json` → server inventory (active vs available)
+4. **Coordinator:** Bash `python3 memory/scripts/memory_verify.py --quick` → memory health (record count by type)
+5. **Coordinator:** Read `CLAUDE.md` → rules count, protocol index, subagent table, version
+6. **Pathfinder:** Neo4j cross-reference (agents ↔ dispatcher routing, protocols ↔ CLAUDE.md index) + Qdrant semantic coverage check → identify gaps or orphaned references
+7. **Coordinator:** Write `docs/self-architecture/capability-map.md` with full capability report
 
-Trigger: self-evolution protocol Phase 1, coordinator request `/self-explore`
-See: `protocols/core/self-evolution.md`, `protocols/core/gap-analysis.md`
+Trigger: self-build-up protocol Phase 1, coordinator request `/self-explore`
+See: `protocols/core/self-build-up.md`, `protocols/core/gap-analysis.md`
 
 **Important**: Self-explore does NOT modify agents, protocols, or code. It only writes `capability-map.md`. Pure introspection.
 
@@ -116,6 +118,31 @@ Return JSON-summary to coordinator
 6. For web research: always cite sources
 7. Memory scripts are in `memory/scripts/` — use them, don't call APIs directly
 8. If unsure about a finding, flag it as "unverified" in the report
+
+
+## Tool Allocation
+
+| Mode | Operation | Who | Tool |
+|------|-----------|-----|------|
+| Architecture Scan | File discovery | Coordinator | Glob |
+| Architecture Scan | Read configs | Coordinator | Read |
+| Architecture Scan | Pattern analysis | Coordinator | Grep |
+| Architecture Scan | Classification + recommendations | Pathfinder | Neo4j + reasoning |
+| Knowledge Extraction | Find doc sources | Coordinator | Glob + Read |
+| Knowledge Extraction | Semantic analysis | Pathfinder/Researcher | Reasoning + domain expertise |
+| Knowledge Extraction | Store records | Coordinator | Bash (memory scripts) |
+| Memory Maintenance | Health check | Coordinator | Bash (memory_verify.py) |
+| Memory Maintenance | Duplicate scan | Coordinator | Bash (memory_dedupe.py --dry-run) |
+| Memory Maintenance | Graph stale detection | Pathfinder | Neo4j (find refs to deleted files) |
+| Memory Maintenance | Cleanup execution | Pathfinder | Bash (memory_cleanup.py --execute) |
+| Post-Change | Get diff | Coordinator | Bash (git diff) |
+| Post-Change | Search memory | Coordinator | Bash (memory scripts) |
+| Post-Change | Graph integrity check | Pathfinder | Neo4j (verify edges) |
+| Web Research | Search + fetch | Coordinator | WebSearch, WebFetch |
+| Web Research | Complex summarization | Pathfinder | Reasoning |
+| Self-Explore | Scan agents/protocols | Coordinator | Glob + Read |
+| Self-Explore | Graph cross-reference | Pathfinder | Neo4j traversal |
+| Self-Explore | Semantic scoring | Pathfinder | Qdrant similarity |
 
 ## Example
 

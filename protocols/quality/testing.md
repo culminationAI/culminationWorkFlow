@@ -60,11 +60,13 @@ Scale: 0-100 total.
 - T19: Multi-project coordination
 - T20: Complex architectural decision
 
-### Wave 5: Self-Evolution (T4-T5)
-3 tests, self-awareness validation:
-- T21: Gap analysis accuracy — known-gap scenario produces correct classification (no-gap, KNOWLEDGE, STRUCTURAL)
-- T22: Body lifecycle — create draft → activate → use → deactivate → reactivate → archive
-- T23: Self-explore completeness — all agents, protocols, MCP reflected in capability map
+### Wave 5: Self Build-Up
+
+| ID | Test | Coordinator Steps | Pass Criteria |
+|----|------|------------------|---------------|
+| T21 | Gap analysis accuracy | 1. Coordinator: Read `capability-map.md`, identify a well-covered domain<br>2. Run lightweight gap scan on that domain<br>3. Verify score > 0.8<br>4. Inject a fake unknown domain, run scan<br>5. Verify STRUCTURAL gap detected | Known domain → no gap. Unknown domain → gap detected. |
+| T22 | Build lifecycle | 1. Create test build manifest in `build-registry.json` (Edit)<br>2. Create test spec in `spec-registry.json` (Edit)<br>3. Activate: Write test agent file, update states<br>4. Verify: Glob test files exist, states=active/IN_USE<br>5. Deactivate: Delete test files, update states<br>6. Verify: Glob test files gone, states=buffered/AVAILABLE<br>7. Cleanup: remove test entries from registries | Full lifecycle: draft→active→buffered. Files created and cleaned. |
+| T23 | Self-explore completeness | 1. Run pathfinder self-explore<br>2. Read `capability-map.md`<br>3. Glob all `.claude/agents/*.md` → verify each listed in map<br>4. Glob all `protocols/**/*.md` → verify each listed in map<br>5. Verify no orphaned entries | All agents and protocols present in capability-map. No orphans. |
 
 Smoke test details: `docs/self-architecture/smoke-tests/`
 
@@ -78,7 +80,7 @@ Not all tests run for every evaluation. Select based on change type:
 | Delegation fix | T11-T15 (Wave 3) | PAR, ROUT, PLAN |
 | Memory fix | T16-T17 (Wave 4) | MEM, CONT |
 | Protocol fix | T17-T18 (Wave 4) | CONT, QUAL |
-| Self-evolution fix | T21-T23 (Wave 5) | COMP, QUAL |
+| Self-build-up fix | T21-T23 (Wave 5, coordinator-runnable) | COMP, QUAL |
 | Architectural | All waves | All metrics |
 
 Minimum: 5 tests per evaluation. Maximum: all 23.

@@ -26,6 +26,45 @@ python3 memory/scripts/memory_dedupe.py
 python3 memory/scripts/memory_verify.py
 ```
 
+## Interface Split
+
+Two roles interact with memory. The split is by operation depth.
+
+### Coordinator (direct shell access)
+
+Fast operations, no subagent dispatch needed:
+
+```bash
+# Quick search — vector similarity, ~1s
+python3 memory/scripts/memory_search.py "query" --limit 10
+
+# Quick search — graph traversal
+python3 memory/scripts/memory_search.py "query" --graph
+
+# Write one or more records
+python3 memory/scripts/memory_write.py '[{"text": "...", ...}]' --source personal
+```
+
+Use these at session start, before delegating, and after T3+ subagent work.
+
+### Pathfinder (graph + semantic analysis)
+
+Deep operations — delegate to pathfinder when you need more than a lookup:
+
+- **Neo4j graph traversal** — finding connections and paths between memory records
+- **Qdrant semantic similarity** — discovering related records by meaning across the full collection
+- **Cross-reference verification** — confirming memory records match current codebase state
+- **Maintenance operations** — deduplication, integrity check, cleanup:
+  ```bash
+  python3 memory/scripts/memory_dedupe.py     # remove duplicate records
+  python3 memory/scripts/memory_verify.py     # Qdrant ↔ Neo4j integrity
+  python3 memory/scripts/memory_cleanup.py    # purge stale/expired records
+  ```
+
+Pathfinder runs these as part of periodic maintenance or when memory quality degrades.
+
+---
+
 ## Write Format
 
 ```json
@@ -63,9 +102,9 @@ python3 memory/scripts/memory_verify.py
 | Task completed | `task` |
 | Blocker encountered | `blocker` |
 | Gap analysis completed | `gap_analysis` |
-| Evolution body activated | `evolution` (subtype: body_activated) |
-| Evolution body deactivated | `evolution` (subtype: body_deactivated) |
-| Evolution body reactivated | `evolution` (subtype: body_reactivated) |
+| Build activated | `evolution` (subtype: build_activated) |
+| Build deactivated | `evolution` (subtype: build_deactivated) |
+| Build reactivated | `evolution` (subtype: build_reactivated) |
 | Knowledge gap filled | `evolution` (subtype: knowledge_acquisition) |
 
 ## Conflict Resolution

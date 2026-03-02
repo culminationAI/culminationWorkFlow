@@ -25,11 +25,16 @@ Note: Ollama is optional (for higher quality embeddings). Embeddings are handled
 
 ### Phase 2: Explore
 
-Dispatch pathfinder for architecture scan:
-1. Analyze codebase: languages, frameworks, directory structure
-2. Map architecture: modules, layers, data flows, entry points
-3. Identify key files: README, configs, package managers, CI/CD
-4. Detect project archetype:
+Coordinator-first data collection, then pathfinder analysis:
+
+1. **Coordinator:** Run Glob for key files: `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `Gemfile`, `pom.xml`, `Makefile`, `docker-compose*`, `tsconfig.json`, `.eslintrc*`, `.github/workflows/*`, `README*`
+2. **Coordinator:** Read discovered configs → build stack inventory (languages, frameworks, versions)
+3. **Coordinator:** Grep for patterns (import statements, route definitions, class definitions) → pattern inventory
+4. **Coordinator:** Pass inventories to pathfinder as structured context in dispatch prompt
+5. **Pathfinder:** Receives pre-collected data → Neo4j graph analysis → architecture classification → recommendations
+6. **Pathfinder:** Write structured exploration report → `docs/exploration-report.md`
+
+Detect project archetype from collected data:
 
 | Archetype | Signals | Typical Domain Agents |
 |-----------|---------|----------------------|
@@ -53,8 +58,6 @@ Dispatch pathfinder for architecture scan:
 3. Secondary archetypes add supplementary agents (no duplicates)
 4. Store all detected archetypes in exploration report: `{primary: "Data Pipeline", secondary: ["Framework/OSS", "Monorepo"]}`
 5. In Phase 4, create agents for primary first, then add missing agents from secondary archetypes
-
-5. Produce structured exploration report → `docs/exploration-report.md`
 
 ### Phase 3: Learn
 
@@ -143,14 +146,18 @@ Infrastructure and MCP setup:
    - If yes → ask for bot token, configure `bot/` directory
    - If no → skip
 
-### Phase 6: Verify
+### Phase 6: System Validation
 
-Dispatch pathfinder for system validation:
-1. Memory read/write roundtrip test
-2. Agent dispatch test (simple T2 task to each agent)
-3. Protocol search test (find a protocol by keyword)
-4. MCP server connectivity check
-5. Report: all systems operational or list of issues
+Coordinator runs verification tests directly — no subagent dispatch needed.
+
+1. **Memory roundtrip:** `python3 memory/scripts/memory_verify.py --quick` → parse output for health status
+2. **Agent dispatch:** Send simple T2 task to any available subagent → verify response received
+3. **Protocol searchability:** `Grep "## Overview" protocols/**/*.md` → verify all protocols parseable
+4. **MCP connectivity:** Call any MCP tool (e.g., `read_neo4j_cypher("RETURN 1")`) → verify server responds
+5. **Graph connectivity:** `read_neo4j_cypher("MATCH (n) RETURN count(n) LIMIT 1")` → verify Neo4j accessible
+6. **Report:** Compile results — all 5 checks must pass for "system operational" status
+
+If any check fails → log failure, warn user, continue initialization (non-blocking).
 
 ### Phase 7: Research Opt-in
 
@@ -168,7 +175,7 @@ Workflow graduates from version 0.1 → 1.0:
 3. Protocol-manager validates: all protocols are indexed, cross-referenced, discoverable
 4. **Self-Architecture Bootstrap:**
    a. Dispatch pathfinder (self-explore mode) → generate initial `docs/self-architecture/capability-map.md`
-   b. Verify `docs/self-architecture/` directory exists with `body-registry.json`, `gap-analysis-log.md`
+   b. Verify `docs/self-architecture/` directory exists with `build-registry.json`, `gap-analysis-log.md`
    c. Run lightweight gap analysis on the freshly initialized system
    d. Store: `{type: "evolution", subtype: "self_architecture_initialized"}`
 5. Coordinator synthesizes: generate evolution report, apply any improvements
@@ -200,6 +207,25 @@ This is the natural bridge from onboarding to productive work. The user should f
 5. If any phase fails → stop, report error, do NOT proceed to next phase
 6. Initialization is idempotent — running again on an initialized project re-runs exploration but preserves existing agents and preferences. To correct corrupted preferences, re-run Phase 3: all preference fields will be re-asked and overwritten, old memory records updated.
 7. Phase 9 MUST be the last phase — never skip the transition to planning mode
+
+## Tool Allocation
+
+| Phase | Operation | Who | Tool |
+|-------|-----------|-----|------|
+| 2 (Explore) | Glob key files | Coordinator | Glob |
+| 2 (Explore) | Read configs/entry points | Coordinator | Read |
+| 2 (Explore) | Grep for code patterns | Coordinator | Grep |
+| 2 (Explore) | Pass inventories to pathfinder | Coordinator | Task (structured context) |
+| 2 (Explore) | Architecture analysis + classification | Pathfinder | Neo4j + reasoning |
+| 2 (Explore) | Write exploration report | Pathfinder | Write |
+| 5 (Memory) | Load session context | Coordinator | Bash (memory scripts) |
+| 6 (System Validation) | Memory roundtrip test | Coordinator | Bash (memory_verify.py) |
+| 6 (System Validation) | Agent dispatch test | Coordinator | Task (simple T2) |
+| 6 (System Validation) | Protocol searchability | Coordinator | Grep |
+| 6 (System Validation) | MCP connectivity | Coordinator | MCP tool call |
+| 6 (System Validation) | Graph connectivity | Coordinator | Neo4j read_cypher |
+| 8 (Self-Arch) | Create directories | Coordinator | Bash (mkdir) |
+| 8 (Self-Arch) | Self-explore scan | Pathfinder | Neo4j + Qdrant + Glob |
 
 ## Example
 

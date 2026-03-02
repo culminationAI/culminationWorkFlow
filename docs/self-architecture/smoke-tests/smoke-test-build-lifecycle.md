@@ -1,40 +1,40 @@
-# Smoke Test: Body Lifecycle
+# Smoke Test: Build Lifecycle
 
-Validates the full evolution body lifecycle: draft → active → use → deactivate → buffer → reactivate → archive.
+Validates the full build lifecycle: draft → active → use → deactivate → buffer → reactivate → archive.
 
-**Protocol under test:** `protocols/core/self-evolution.md` (when created)
-**Registry:** `docs/self-architecture/body-registry.json`
-**Test body ID:** `test-smoke-body-001`
+**Protocol under test:** `protocols/core/self-build-up.md` (when created)
+**Registry:** `docs/self-architecture/build-registry.json`
+**Test build ID:** `test-smoke-build-001`
 
 ---
 
 ## Setup
 
-Before running: confirm `body-registry.json` exists and `bodies` array is either empty or does not contain `test-smoke-body-001`. No agent file named `test-agent.md` should exist in `.claude/agents/`.
+Before running: confirm `build-registry.json` exists and `builds` array is either empty or does not contain `test-smoke-build-001`. No agent file named `test-agent.md` should exist in `.claude/agents/`.
 
 ---
 
 ## Steps
 
-### T1 — Create body (draft)
+### T1 — Create build (draft)
 
 **Action:** Coordinator receives intent: "Add a `test-agent` subagent for smoke testing. Scope: smoke test validation only."
 
 **Procedure:**
-1. Run gap analysis or manually trigger self-evolution body creation flow.
-2. Write draft entry to `body-registry.json`:
+1. Run gap analysis or manually trigger self-build-up build creation flow.
+2. Write draft entry to `build-registry.json`:
    ```json
    {
-     "id": "test-smoke-body-001",
+     "id": "test-smoke-build-001",
      "state": "draft",
      "created": "<ISO8601>",
-     "what_task": "Smoke test validation — verifies body lifecycle from creation to archive",
+     "what_task": "Smoke test validation — verifies build lifecycle from creation to archive",
      "components": {
        "agents": [
          {
            "name": "test-agent",
            "file": ".claude/agents/test-agent.md",
-           "description": "Temporary agent for smoke testing body lifecycle"
+           "description": "Temporary agent for smoke testing build lifecycle"
          }
        ],
        "protocols": [],
@@ -48,7 +48,7 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
    ```
 
 **Verify:**
-- `body-registry.json` contains entry with `id = test-smoke-body-001` and `state = draft`.
+- `build-registry.json` contains entry with `id = test-smoke-build-001` and `state = draft`.
 - `.claude/agents/test-agent.md` does NOT exist yet.
 - No routing entry for `test-agent` in `protocols/core/dispatcher.md`.
 - CLAUDE.md subagent table does NOT list `test-agent`.
@@ -57,9 +57,9 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 
 ---
 
-### T2 — Activate body
+### T2 — Activate build
 
-**Action:** Coordinator activates body `test-smoke-body-001`.
+**Action:** Coordinator activates build `test-smoke-build-001`.
 
 **Procedure:**
 1. Create `.claude/agents/test-agent.md` with minimal valid frontmatter and body describing smoke testing scope.
@@ -80,7 +80,7 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 
 ### T3 — Route a task (record usage)
 
-**Action:** Coordinator routes a T3 task to `test-agent`: "Confirm smoke test readiness for body lifecycle."
+**Action:** Coordinator routes a T3 task to `test-agent`: "Confirm smoke test readiness for build lifecycle."
 
 **Procedure:**
 1. Dispatch task to `test-agent` (can be a no-op acknowledgement response).
@@ -95,9 +95,9 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 
 ---
 
-### T4 — Deactivate body (buffer)
+### T4 — Deactivate build (buffer)
 
-**Action:** Coordinator deactivates body `test-smoke-body-001`. Body moves to `buffered` state — context preserved, components removed.
+**Action:** Coordinator deactivates build `test-smoke-build-001`. Build moves to `buffered` state — context preserved, components removed.
 
 **Procedure:**
 1. Delete `.claude/agents/test-agent.md`.
@@ -117,12 +117,12 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 
 ---
 
-### T5 — Reactivate body
+### T5 — Reactivate build
 
-**Action:** A new task arises that matches the buffered body. Coordinator reactivates `test-smoke-body-001`.
+**Action:** A new task arises that matches the buffered build. Coordinator reactivates `test-smoke-build-001`.
 
 **Procedure:**
-1. Gap analysis (or direct lookup) finds `test-smoke-body-001` in buffered bodies with matching `what_task`.
+1. Gap analysis (or direct lookup) finds `test-smoke-build-001` in buffered builds with matching `what_task`.
 2. Recreate `.claude/agents/test-agent.md` from registry `components.agents` description.
 3. Re-add routing entry to dispatcher.
 4. Re-add subagent row to CLAUDE.md.
@@ -136,20 +136,20 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 - TTL fields reset (not carrying over the old expiry).
 - `use_count` and `last_used` preserved from before buffering (not reset).
 
-**Pass condition:** Body fully operational again. TTL reset. Usage history preserved.
+**Pass condition:** Build fully operational again. TTL reset. Usage history preserved.
 
 ---
 
-### T6 — Archive body
+### T6 — Archive build
 
-**Action:** Body has reached TTL expiry or is explicitly retired. Coordinator archives `test-smoke-body-001`.
+**Action:** Build has reached TTL expiry or is explicitly retired. Coordinator archives `test-smoke-build-001`.
 
 **Procedure:**
 1. Delete `.claude/agents/test-agent.md` (if active; skip if already buffered).
 2. Remove routing entry from dispatcher (if present).
 3. Remove subagent row from CLAUDE.md (if present).
 4. Update registry: `state = archived`, `archived_at = <ISO8601>`.
-5. Keep the full manifest entry in `body-registry.json` (archived bodies are NOT deleted from registry).
+5. Keep the full build manifest entry in `build-registry.json` (archived builds are NOT deleted from registry).
 
 **Verify:**
 - `.claude/agents/test-agent.md` does NOT exist.
@@ -158,7 +158,7 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 - Registry contains entry with `state = archived`.
 - Registry entry still has `id`, `what_task`, `components`, `use_count`, `created`, `archived_at`.
 
-**Pass condition:** Components purged from live system. Manifest retained in registry for historical reference and potential cherry-picking.
+**Pass condition:** Components purged from live system. Build manifest retained in registry for historical reference and potential cherry-picking.
 
 ---
 
@@ -166,12 +166,12 @@ Before running: confirm `body-registry.json` exists and `bodies` array is either
 
 After all steps complete (or after T6):
 
-1. Remove `test-smoke-body-001` entry from `body-registry.json` entirely.
+1. Remove `test-smoke-build-001` entry from `build-registry.json` entirely.
 2. Confirm `.claude/agents/test-agent.md` does not exist.
 3. Confirm no `test-agent` routing entry in dispatcher.
 4. Confirm no `test-agent` row in CLAUDE.md.
 
-**Verify after cleanup:** Registry `bodies` array does not contain any entry with `id = test-smoke-body-001`.
+**Verify after cleanup:** Registry `builds` array does not contain any entry with `id = test-smoke-build-001`.
 
 ---
 
@@ -184,7 +184,7 @@ After all steps complete (or after T6):
 | T3 | `use_count` incremented. `last_used` set. |
 | T4 | Agent file deleted. Dispatcher + CLAUDE.md cleaned. State = buffered. Context preserved. |
 | T5 | Agent file recreated. State = active. TTL reset. Usage history kept. |
-| T6 | Components purged. Registry manifest kept. State = archived. |
+| T6 | Components purged. Registry build manifest kept. State = archived. |
 | Cleanup | Registry fully clean. No orphan files or routing entries. |
 
 All 6 lifecycle transitions complete without error. Registry is clean after cleanup.

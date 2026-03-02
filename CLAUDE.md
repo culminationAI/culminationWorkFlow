@@ -41,7 +41,7 @@ project-root/               <- you are here (workspace root)
 ├── infra/                  <- Docker + DB storage
 ├── secrets/                <- .env (shared)
 ├── docs/
-│   └── self-architecture/  <- self-awareness: capability map, evolution bodies
+│   └── self-architecture/  <- self-awareness: capability map, builds
 └── ...                     <- project documentation
 ```
 
@@ -55,8 +55,8 @@ project-root/               <- you are here (workspace root)
    If update available → inform user. Apply only on explicit user request (`--apply`).
 3. Search memories: `python3 memory/scripts/memory_search.py "active tasks blockers"`
 4. Read active plans if working on a specific project
-5. Lightweight gap analysis: check `docs/self-architecture/capability-map.md` freshness + `docs/self-architecture/body-registry.json` body TTLs (see `protocols/core/gap-analysis.md`)
-6. If active body TTL expiring within 2 days/sessions → warn user
+5. Lightweight gap analysis: check `docs/self-architecture/capability-map.md` freshness + `docs/self-architecture/build-registry.json` build TTLs (see `protocols/core/gap-analysis.md`)
+6. If active build TTL expiring within 2 days/sessions → warn user
 
 ## Subagents (Working Workflow)
 
@@ -155,7 +155,7 @@ Then Read the protocol file and inject relevant section into subagent prompt.
 | Dispatcher (Routing) | Every user request (T1-T5 classification, routing) | `protocols/core/dispatcher.md` |
 | Initialization | `_WORKFLOW_NEEDS_INIT` marker, `/init` | `protocols/core/initialization.md` |
 | Evolution | User correction, session-end review | `protocols/core/evolution.md` |
-| Self-Evolution | Gap detection, evolution body lifecycle | `protocols/core/self-evolution.md` |
+| Self Build-Up | Gap detection, build lifecycle | `protocols/core/self-build-up.md` |
 | Gap Analysis | Capability gap detection (session start + on demand) | `protocols/core/gap-analysis.md` |
 | Coordination | Parallel agent tasks | `protocols/core/coordination.md` |
 | Query Optimization | Every user request | `protocols/core/query-optimization.md` |

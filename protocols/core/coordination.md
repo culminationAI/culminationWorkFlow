@@ -32,6 +32,13 @@ Orchestrate parallel subagent execution with synchronization, time balancing, an
 **How:** Start heavy agent with `run_in_background: true`. Do lighter work in foreground. Join when background completes.
 **Example:** Research agent (background, 5min) + quick engineer fix (foreground, 30s) → join when research done.
 
+### 5. Diagnostic Sidecar
+
+**When:** T3+ task with parallel gap-check enabled.
+**How:** Main task runs as primary track. Gap-check pathfinder runs as sidecar (background, non-blocking).
+**Join:** If sidecar detects issue (structural gap, severity >= high) → inject warning into main result or notify user. If clean → log and discard.
+**Example:** User requests "Design WebSocket streaming" (T4) → engineer dispatched for main task + pathfinder gap-check in parallel → pathfinder finds MCP gap → coordinator warns user: "Missing WebSocket MCP server. Consider build-up."
+
 ## Synchronization
 
 1. **Launch:** All parallel agents in ONE message with multiple Task tool calls

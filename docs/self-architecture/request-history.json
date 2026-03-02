@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "max_entries": 100,
+  "archive_file": "docs/self-architecture/request-history-archive.json",
+  "entries": []
+}
