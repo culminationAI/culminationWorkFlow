@@ -289,7 +289,7 @@ CSS = """
 /* --- Page Setup --- */
 @page {
     size: A4;
-    margin: 2cm 2.5cm 2.5cm 2.5cm;
+    margin: 1.5cm 1.8cm 1.8cm 1.8cm;
     @bottom-center {
         content: counter(page);
         font-family: 'Georgia', serif;
@@ -320,8 +320,8 @@ html {
 
 body {
     font-family: 'Georgia', 'Times New Roman', Times, serif;
-    font-size: 11pt;
-    line-height: 1.7;
+    font-size: 10pt;
+    line-height: 1.45;
     color: #1f2937;
     background: #ffffff;
     margin: 0;
@@ -335,37 +335,36 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
     text-align: center;
     page-break-after: always;
-    padding: 4cm 2cm;
+    padding: 2cm 1.5cm;
     background: linear-gradient(160deg, #0f1f3d 0%, #1a365d 60%, #2d4a7a 100%);
     color: #ffffff;
 }
 
 .cover-logo {
-    font-size: 14pt;
+    font-size: 11pt;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #93c5fd;
-    margin-bottom: 2cm;
+    margin-bottom: 1cm;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     font-weight: 300;
 }
 
 .cover-title {
-    font-size: 32pt;
+    font-size: 26pt;
     font-weight: 700;
     color: #ffffff;
-    margin: 0 0 0.4cm 0;
+    margin: 0 0 0.3cm 0;
     line-height: 1.15;
     letter-spacing: -0.01em;
 }
 
 .cover-subtitle {
-    font-size: 14pt;
+    font-size: 12pt;
     color: #bfdbfe;
-    margin: 0 0 2cm 0;
+    margin: 0 0 1cm 0;
     font-weight: 400;
     font-style: italic;
     max-width: 15cm;
@@ -373,32 +372,31 @@ body {
 
 .cover-meta {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 10pt;
+    font-size: 9pt;
     color: #93c5fd;
     border-top: 1px solid rgba(147, 197, 253, 0.3);
-    padding-top: 0.6cm;
-    margin-top: 1cm;
+    padding-top: 0.4cm;
+    margin-top: 0.6cm;
     letter-spacing: 0.05em;
 }
 
 .cover-meta span {
     display: inline-block;
-    margin: 0 0.5cm;
+    margin: 0 0.4cm;
 }
 
 /* --- Table of Contents --- */
 .toc {
-    page-break-after: always;
-    padding: 1cm 0 2cm 0;
+    padding: 0.5cm 0 1cm 0;
 }
 
 .toc h2 {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 18pt;
+    font-size: 14pt;
     color: #1a365d;
-    border-bottom: 3px solid #1a365d;
-    padding-bottom: 0.3cm;
-    margin-bottom: 0.8cm;
+    border-bottom: 2px solid #1a365d;
+    padding-bottom: 0.2cm;
+    margin-bottom: 0.5cm;
     letter-spacing: -0.01em;
 }
 
@@ -410,18 +408,18 @@ body {
 }
 
 .toc-part {
-    margin-bottom: 0.5cm;
+    margin-bottom: 0.25cm;
     counter-increment: toc-part;
 }
 
 .toc-part-link {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 12pt;
+    font-size: 10pt;
     font-weight: 700;
     color: #1a365d;
     text-decoration: none;
     display: block;
-    padding: 0.15cm 0;
+    padding: 0.08cm 0;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -429,19 +427,19 @@ body {
 
 .toc-chapters {
     list-style: none;
-    padding: 0 0 0 1cm;
-    margin: 0.2cm 0 0 0;
+    padding: 0 0 0 0.8cm;
+    margin: 0.1cm 0 0 0;
     counter-reset: toc-chapter;
 }
 
 .toc-chapters li {
     counter-increment: toc-chapter;
-    padding: 0.05cm 0;
+    padding: 0.02cm 0;
 }
 
 .toc-chapters a {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 10pt;
+    font-size: 9pt;
     color: #374151;
     text-decoration: none;
 }
@@ -451,34 +449,27 @@ body {
 /* --- Part Headers --- */
 .part-header {
     page-break-before: always;
-    page-break-after: always;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    text-align: center;
-    padding: 2cm;
+    padding: 0.6cm 0 0.3cm 0;
+    border-bottom: 3px solid #1a365d;
+    margin-bottom: 0.5cm;
 }
 
 .part-header h1 {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 28pt;
+    font-size: 16pt;
     font-weight: 700;
     color: #1a365d;
     margin: 0;
-    padding: 0 0 0.5cm 0;
-    border-bottom: 4px solid #1a365d;
+    padding: 0;
     letter-spacing: -0.02em;
-    display: inline-block;
 }
 
 /* --- Chapters --- */
 .chapter {
-    page-break-inside: avoid;
-    padding: 0 0 1.5cm 0;
+    page-break-inside: auto;
+    padding: 0 0 0.5cm 0;
     border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 1.5cm;
+    margin-bottom: 0.5cm;
 }
 
 .chapter:last-child {
@@ -487,12 +478,12 @@ body {
 
 .chapter h2 {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 18pt;
+    font-size: 13pt;
     font-weight: 700;
     color: #1a365d;
-    border-bottom: 2px solid #bfdbfe;
-    padding-bottom: 0.25cm;
-    margin: 0 0 0.6cm 0;
+    border-bottom: 1px solid #bfdbfe;
+    padding-bottom: 0.15cm;
+    margin: 0 0 0.3cm 0;
     letter-spacing: -0.01em;
 }
 
@@ -500,35 +491,35 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     color: #1a365d;
-    line-height: 1.3;
-    margin-top: 1em;
-    margin-bottom: 0.4em;
+    line-height: 1.25;
+    margin-top: 0.6em;
+    margin-bottom: 0.2em;
 }
 
 /* h2 inside chapter content (not the chapter title itself) */
 .chapter .chapter-content h1 {
-    font-size: 16pt;
+    font-size: 12pt;
     border-bottom: 1px solid #dbeafe;
-    padding-bottom: 0.2cm;
-    margin-top: 1.2em;
+    padding-bottom: 0.1cm;
+    margin-top: 0.8em;
 }
 
 .chapter .chapter-content h2 {
-    font-size: 14pt;
+    font-size: 11pt;
     color: #1e40af;
     border-bottom: none;
     padding-bottom: 0;
-    margin-top: 1em;
+    margin-top: 0.6em;
 }
 
 .chapter .chapter-content h3 {
-    font-size: 12pt;
+    font-size: 10pt;
     color: #1e40af;
     font-weight: 600;
 }
 
 .chapter .chapter-content h4 {
-    font-size: 11pt;
+    font-size: 9.5pt;
     color: #374151;
     font-weight: 600;
     font-style: italic;
@@ -536,22 +527,22 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Paragraphs & Lists --- */
 p {
-    margin: 0 0 0.6em 0;
+    margin: 0 0 0.35em 0;
     text-align: justify;
     hyphens: auto;
 }
 
 ul, ol {
-    margin: 0.4em 0 0.6em 0;
-    padding-left: 1.5em;
+    margin: 0.2em 0 0.35em 0;
+    padding-left: 1.3em;
 }
 
 li {
-    margin-bottom: 0.2em;
+    margin-bottom: 0.1em;
 }
 
 li > ul, li > ol {
-    margin-top: 0.2em;
+    margin-top: 0.1em;
 }
 
 /* --- Links --- */
@@ -580,13 +571,13 @@ code {
 pre {
     background: #f7f8fa;
     border: 1px solid #e2e8f0;
-    border-left: 4px solid #1a365d;
-    border-radius: 4px;
-    padding: 0.7cm 0.8cm;
+    border-left: 3px solid #1a365d;
+    border-radius: 3px;
+    padding: 0.35cm 0.5cm;
     overflow-x: auto;
-    font-size: 0.85em;
-    line-height: 1.5;
-    margin: 0.6em 0 0.8em 0;
+    font-size: 0.82em;
+    line-height: 1.35;
+    margin: 0.3em 0 0.4em 0;
     page-break-inside: avoid;
 }
 
@@ -604,8 +595,8 @@ pre code {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0.6em 0 0.8em 0;
-    font-size: 0.93em;
+    margin: 0.3em 0 0.4em 0;
+    font-size: 0.88em;
     page-break-inside: avoid;
 }
 
@@ -616,9 +607,9 @@ thead {
 
 thead th {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: 600;
-    padding: 0.3cm 0.4cm;
+    padding: 0.15cm 0.3cm;
     text-align: left;
     letter-spacing: 0.02em;
 }
@@ -632,18 +623,18 @@ tbody tr:hover {
 }
 
 tbody td {
-    padding: 0.2cm 0.4cm;
+    padding: 0.1cm 0.3cm;
     border: 1px solid #e5e7eb;
     vertical-align: top;
 }
 
 /* --- Blockquotes --- */
 blockquote {
-    border-left: 4px solid #93c5fd;
+    border-left: 3px solid #93c5fd;
     background: #eff6ff;
-    margin: 0.6em 0;
-    padding: 0.4cm 0.6cm;
-    border-radius: 0 4px 4px 0;
+    margin: 0.3em 0;
+    padding: 0.2cm 0.4cm;
+    border-radius: 0 3px 3px 0;
     font-style: italic;
     color: #374151;
 }
@@ -656,7 +647,7 @@ blockquote p {
 hr {
     border: none;
     border-top: 1px solid #e5e7eb;
-    margin: 1em 0;
+    margin: 0.5em 0;
 }
 
 /* --- Badges / inline highlights --- */
@@ -673,7 +664,7 @@ em {
 @media print {
     body {
         background: #ffffff;
-        font-size: 10.5pt;
+        font-size: 9.5pt;
     }
 
     .cover {
@@ -712,17 +703,6 @@ em {
         text-decoration: none;
     }
 
-    /* Show hrefs after links in print */
-    a[href^="http"]:after {
-        content: " (" attr(href) ")";
-        font-size: 0.75em;
-        color: #6b7280;
-    }
-
-    .toc {
-        page-break-after: always;
-    }
-
     .chapter {
         page-break-inside: auto;
     }
@@ -741,7 +721,7 @@ em {
     body {
         max-width: 21cm;
         margin: 0 auto;
-        padding: 1cm 2cm;
+        padding: 0.5cm 1cm;
         background: #f3f4f6;
     }
 
@@ -750,20 +730,18 @@ em {
     .toc,
     .chapter {
         background: #ffffff;
-        border-radius: 6px;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-        margin-bottom: 1cm;
-        padding: 1.5cm 2cm;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        margin-bottom: 0.4cm;
+        padding: 0.6cm 1cm;
     }
 
     .cover {
-        min-height: auto;
-        padding: 3cm 2cm;
+        padding: 1.5cm 1cm;
     }
 
     .part-header {
-        min-height: auto;
-        padding: 2cm;
+        padding: 0.5cm 1cm;
     }
 }
 """
