@@ -46,8 +46,13 @@ project-root/               <- you are here (workspace root)
 ## Session Start
 
 1. Check for `_WORKFLOW_NEEDS_INIT` marker → if present, follow `protocols/core/initialization.md`
-2. Search memories: `python3 memory/scripts/memory_search.py "active tasks blockers"`
-3. Read active plans if working on a specific project
+2. Check for workflow updates:
+   ```bash
+   python3 memory/scripts/workflow_update.py --check
+   ```
+   If update available → inform user. Apply only on explicit user request (`--apply`).
+3. Search memories: `python3 memory/scripts/memory_search.py "active tasks blockers"`
+4. Read active plans if working on a specific project
 
 ## Subagents (Working Workflow)
 
