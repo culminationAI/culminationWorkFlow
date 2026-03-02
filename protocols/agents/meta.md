@@ -96,6 +96,36 @@ Before committing a new protocol:
 - [ ] Added to CLAUDE.md protocol index
 - [ ] Summary stored in Qdrant with metadata `{type: "protocol"}`
 
+## Auto-Protocol Creation
+
+Protocols are created not only manually but also automatically when patterns emerge:
+
+### Triggers for Auto-Creation
+
+1. **User introduces a new method/principle** — coordinator detects a new behavioral rule and invokes protocol-manager to formalize it
+2. **Evolution detects recurring pattern** — if a process is used 3+ times across sessions, protocol-manager drafts a protocol
+3. **Coordinator introduces a new rule** — any new rule added to CLAUDE.md or agent definitions MUST be backed by a protocol
+4. **Feature introduction** — new features with multi-step processes should have accompanying protocols
+
+### Meta-Rule
+
+**If coordinator or any agent introduces a new behavioral rule or feature, protocol-manager MUST be invoked to evaluate whether it should become a protocol.**
+
+Threshold for protocol creation:
+- Used 3+ times (pattern detected)
+- Has 4+ steps (process complexity)
+- Explicitly requested by user
+- Introduces a constraint that others must follow
+
+### Auto-Creation Process
+
+1. Coordinator or evolution pipeline detects trigger
+2. Coordinator dispatches protocol-manager with context
+3. Protocol-manager checks existing protocols for overlap
+4. Protocol-manager drafts new protocol following the template
+5. Protocol-manager registers in README.md and CLAUDE.md
+6. Coordinator stores creation record in memory: `{type: "evolution", subtype: "protocol_created"}`
+
 ## Versioning
 
 - Protocols don't use version numbers in filenames

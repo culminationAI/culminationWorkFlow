@@ -1,3 +1,4 @@
+<!-- WORKFLOW_VERSION: 0.1 -->
 <!-- _WORKFLOW_NEEDS_INIT -->
 
 # CLAUDE.md — Main Workspace
@@ -49,8 +50,10 @@ Base agents (always available):
 
 | Agent | When to use |
 |-------|------------|
-| **engineer** | Python, Docker, API, scripts, infrastructure, testing |
-| **llm-engineer** | Prompt design, context engineering, model routing, agent creation |
+| **pathfinder** | Project exploration, architecture analysis, memory management (verify/validate/dedupe/cleanup), post-refactor re-scan, connection mapping, knowledge extraction, web research |
+| **protocol-manager** | Protocol creation, organization, directory maintenance, protocol search, indexing (CLAUDE.md + README.md), dependency analysis (invokes pathfinder) |
+| **engineer** | Python code, Docker deployment, API integration, scripts, tests, infrastructure, CI/CD |
+| **llm-engineer** | Prompt design, context engineering, model routing, agent creation, system prompt optimization |
 
 Domain agents are created during initialization (see `protocols/initialization.md`).
 
@@ -85,6 +88,17 @@ python3 memory/scripts/memory_search.py "query" --graph
 
 Rules: English, max 200 tokens, dedup before writing, one fact per record.
 
+## User Identity
+
+Persistent learning file `user-identity.md` in workspace root. Created during initialization, updated by coordinator after evolution corrections. Contains: user preferences, work patterns, key decisions, project milestones. Pathfinder can explore these facts for evolution.
+
+## Workflow Versioning
+
+- `0.1` — fresh install, pre-initialization
+- `1.0` — initialization complete, evolution passed
+- `1.x` — incremented by evolution on significant improvements
+- Version stored in CLAUDE.md header: `<!-- WORKFLOW_VERSION: X.X -->`
+
 ## Data Attribution
 
 All projects share Neo4j + Qdrant. Every record tagged with `_source: project_name`. Each project defines its own source tag in its CLAUDE.md.
@@ -107,18 +121,18 @@ Then Read the protocol file and inject relevant section into subagent prompt.
 
 | Protocol | Trigger | File |
 |----------|---------|------|
-| Initialization | First run, `_WORKFLOW_NEEDS_INIT` marker | `protocols/initialization.md` |
-| Agent Creation | New domain, agent overloaded, initialization | `protocols/agent-creation.md` |
-| Coordination | T3+ with 2+ agents, heavy single task | `protocols/coordination.md` |
-| Memory | Before/after significant tasks | `protocols/memory.md` |
-| Evolution | After user corrections, routing failures | `protocols/evolution.md` |
-| Query Optimization | Every request (classify T1-T5) | `protocols/query-optimization.md` |
-| Agent Communication | Every T3+ subagent dispatch | `protocols/agent-communication.md` |
-| Context Engineering | Assembling prompts for subagents | `protocols/context-engineering.md` |
-| Mining | Knowledge extraction tasks | `protocols/mining.md` |
-| Cloning | Evolution pipeline needs isolated instances | `protocols/cloning.md` |
-| Testing | Evolution pipeline, audit requests | `protocols/testing.md` |
-| Meta | Protocol discovery, creation, lifecycle | `protocols/meta.md` |
+| Initialization | `_WORKFLOW_NEEDS_INIT` marker, `/init` | `protocols/core/initialization.md` |
+| Evolution | User correction, session-end review | `protocols/core/evolution.md` |
+| Coordination | Parallel agent tasks | `protocols/core/coordination.md` |
+| Query Optimization | Every user request | `protocols/core/query-optimization.md` |
+| Agent Creation | New domain needed | `protocols/agents/agent-creation.md` |
+| Agent Communication | Every agent dispatch | `protocols/agents/agent-communication.md` |
+| Meta (Protocol Lifecycle) | Protocol CRUD, auto-creation | `protocols/agents/meta.md` |
+| Exploration | Pathfinder tasks, `/explore` | `protocols/knowledge/exploration.md` |
+| Memory | Memory read/write | `protocols/knowledge/memory.md` |
+| Context Engineering | Context assembly | `protocols/knowledge/context-engineering.md` |
+| Testing | Verification, benchmarks | `protocols/quality/testing.md` |
+| Cloning | Evolution pipeline | `protocols/quality/cloning.md` |
 
 **Evolution rule**: After EVERY user correction → MUST store via `protocols/evolution.md`.
 

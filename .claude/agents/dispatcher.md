@@ -34,15 +34,21 @@
 
 | Domain | Subagent |
 |--------|----------|
+| Project exploration, architecture analysis, codebase scanning | pathfinder |
+| Memory management: verify, validate, dedupe, cleanup, maintenance | pathfinder |
+| Post-refactor verification, connection mapping, knowledge extraction | pathfinder |
+| Web research for project analysis | pathfinder |
+| Protocol creation, organization, search, indexing | protocol-manager |
+| Protocol directory maintenance, cross-reference management | protocol-manager |
 | Python, Docker, API, scripts, tests, infrastructure | engineer |
-| Prompt design, context engineering, model routing, LLM debugging, agent creation | llm-engineer |
+| Prompt design, context engineering, model routing, agent creation | llm-engineer |
 
 ### Domain agents (created during initialization)
 
-Domain agents are added during initialization via the agent-creation protocol (`protocols/agent-creation.md`).
+Domain agents are added during initialization via the agent-creation protocol (`protocols/agents/agent-creation.md`).
 Each project defines its own domain agents based on the knowledge areas it covers.
 
-> When routing, check `.claude/agents/` for available domain agents beyond the base two.
+> When routing, check `.claude/agents/` for available domain agents beyond the base four.
 
 ## Prompt Checklist
 
@@ -103,9 +109,11 @@ When running 2+ subagents in parallel on related topics:
 2. **When in doubt** between adjacent tiers — choose lower, escalate if needed
 3. **Coordinator never executes domain tasks directly** — only routes and synthesizes
 4. **Max subagents:** 2 for T3, 3 for T4, unlimited for T5
-5. **Start response with `[T{n}]`** so the user sees the classification
-6. **Respond to user in the project language** (set in CLAUDE.md)
-7. **Scoped handoffs** — each subagent gets only file paths + task description, not full conversation history
-8. **T1 = direct tool** — never delegate T1 to subagent. If one Grep/Glob/Read can answer it, use it directly.
-9. **Validate paths before dispatch** — run Glob to confirm file existence. Never construct paths from memory.
-10. **Coordinator NEVER writes files** — if the task creates or modifies a file (code, scripts, docs, configs), it MUST be delegated to a subagent. Coordinator only writes plan files and memory records.
+5. **Pathfinder is non-blocking** — pathfinder can run in parallel with any other agent
+6. **Start response with `[T{n}]`** so the user sees the classification
+7. **Respond to user in the project language** (set in CLAUDE.md)
+8. **Scoped handoffs** — each subagent gets only file paths + task description, not full conversation history
+9. **T1 = direct tool** — never delegate T1 to subagent. If one Grep/Glob/Read can answer it, use it directly.
+10. **Validate paths before dispatch** — run Glob to confirm file existence. Never construct paths from memory.
+11. **Auto-protocol creation** — if a new rule or feature is introduced, coordinator MUST dispatch protocol-manager to evaluate formalization
+12. **Coordinator NEVER writes files** — if the task creates or modifies a file (code, scripts, docs, configs), it MUST be delegated to a subagent. Coordinator only writes plan files and memory records.
